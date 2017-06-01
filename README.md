@@ -7,13 +7,13 @@ In order to run the benchmarks, you need the corresponding framework, then just 
 The toy-data and default-parameters are provided by 'data.py', to make sure every script uses the same hyperparameters.
 
 ## Results
-- Median runtimes for a single layer unidirectional 320 GRU network, Cross Entropy Loss, no masking
+- Single layer unidirectional 320 GRU network, Cross Entropy Loss, no masking
 
   | Runtime per epoch [ms] | Lasagne | Tensorflow | PyTorch |
   |------------------------|---------|------------|---------|
   | Median                 | 34      | 54         | 17      |
   
-- Median runtimes for a 4x320 bidirectional LSTM network (EESEN), warp-ctc loss
+- Quad layer 4x320 bidirectional LSTM network (EESEN), warp-ctc loss
 
   | Runtime per epoch [ms] | Lasagne | Tensorflow | PyTorch |
   |------------------------|---------|------------|---------|
