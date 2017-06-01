@@ -7,4 +7,4 @@ In order to run the benchmarks, you need the corresponding framework, then just 
 The toy-data and default-parameters are provided by 'data.py', to make sure every script uses the same hyperparameters.
 
 Median runtimes for a single layer unidirectional 320 GRU network, Cross Entropy Loss 
-![Alt text](/320-GRU/output.png?raw=true "Optional Title")
+<img src="/320-GRU/output.png" width="300">
