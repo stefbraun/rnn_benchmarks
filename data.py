@@ -1,18 +1,41 @@
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+import os.path
 
-def toy_batch(seed=11, shape=(25,1000,123)):
+
+def toy_batch(seed=11, shape=(25, 1000, 123), classes=15):
     batch_size, max_len, features = shape
     np.random.seed(seed)
+
+    # Samples
     bX = np.float32(np.random.uniform(-1, 1, (shape)))
-    bY = np.int32(range(batch_size))
-    b_lenX = np.linspace(max_len/2,max_len, batch_size, dtype=int)#np.arange(max_len/2, max_len/2+batch_size)
+    b_lenX = np.int32(np.ones(batch_size) * max_len)
+
+    # Targets
+    bY = np.int32(np.random.randint(low=0, high=classes, size=batch_size))
+
+    return bX, b_lenX, bY, classes
+
+
+def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
+    batch_size, max_len, features = shape
+    np.random.seed(seed)
+
+    # Samples
+    bX = np.float32(np.random.uniform(-1, 1, (shape)))
+    b_lenX = np.int32(np.linspace(max_len / 2, max_len, batch_size))
     maskX = np.zeros((batch_size, max_len), dtype='float32')
     for i, len_sample in enumerate(b_lenX):
         maskX[i, :len_sample] = np.ones((1, len_sample))
 
-    return bX, np.asarray(bY), b_lenX, maskX
+    # Targets
+    bY = np.int32(np.random.randint(low=1, high=classes + 1,
+                                    size=batch_size * 100))  # remember warp-ctc: 0 is the blank label WTF.
+    b_lenY = np.int32(np.ones(batch_size) * 100)  # labels per sample comes from WSJ-si84
+
+    return bX, b_lenX, maskX, bY, b_lenY, classes
+
 
 def default_params():
     rnn_size = 320
@@ -20,16 +43,30 @@ def default_params():
     epochs = 50
     return rnn_size, learning_rate, epochs
 
-def write_results(script_name, run_time):
-    with open('results/results.csv','a') as f:
+
+def write_results(script_name, framework, experiment, parameters, run_time):
+    logfile = '/media/stefbraun/ext4/Dropbox/repos/rnn_benchmarks/results/results.csv'
+    # Write first line if logfile doesn't exits
+    if os.path.isfile(logfile) == False:
+        with open(logfile, 'a') as f:
+            c = csv.writer(f)
+            c.writerow(
+                ['Name', 'Framework', 'Experiment', 'Parameters', 'Min', 'Max', 'Mean', 'Std', 'Median'])
+
+    # Write data
+    with open(logfile, 'a') as f:
         c = csv.writer(f)
-        c.writerow(['Name', 'Min[10:]','Min', 'Max', 'Mean', 'Std','Median'])
-        c.writerow([script_name, np.min(np.sort(run_time)[10:]),np.min(run_time), np.max(run_time), np.mean(run_time),
-                                                                       np.std(run_time),  np.median(run_time)])
+        c.writerow([script_name, framework, experiment, parameters, np.min(run_time),
+                    np.max(run_time), np.mean(run_time),
+                    np.std(run_time), np.median(run_time)])
+
 
 def print_results(run_time):
-    print('Min: {:.3f} Max: {:.3f} Mean: {:.3f} Median: {:.3f}'.format(np.min(run_time), np.max(run_time), np.mean(run_time),
-                                                                       np.median(run_time)))
+    print(
+        'Min: {:.3f} Max: {:.3f} Mean: {:.3f} Median: {:.3f}'.format(np.min(run_time), np.max(run_time),
+                                                                     np.mean(run_time),
+                                                                     np.median(run_time)))
+
 
 def plot_results(time):
     plt.scatter(range(len(time)), time)
@@ -37,40 +74,42 @@ def plot_results(time):
     plt.xlabel('Epoch #')
     plt.ylabel('Time per epoch [sec]')
 
-def bar_chart(logfile='results/results.csv',category='Median',selection=[0,1,2], title='Time per epoch'):
+
+def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
     cat_dict = dict()
     cat = 0
     with open(logfile, 'rb') as f:
         f = csv.reader(f)
-        cat_rows = []
+        experiments = []
         for idx, row in enumerate(f):
-            if (idx != 0) and row[0] == 'Name':
-                cat_dict['{}'.format(cat)] = np.asarray(cat_rows)
-                cat = cat + 1
-                cat_rows = []
-            cat_rows.append(row)
-        cat_dict['{}'.format(cat)] = np.asarray(cat_rows)
+            if idx == 0:
+                cats = row
+            elif idx in selection:
+                experiments.append(row)
+
 
     fig, ax = plt.subplots()
     ind = np.arange(len(selection))
-    width=0.3
-    x_labels=[]
-    y_bar=[]
-    for key in selection:
-        key = str(key)
-        cat_name = cat_dict[key][1][0].astype(str)
+    width = 0.3
+    x_labels = []
+    y_bar = []
+    for row in experiments:
+
+        # X-axis
+        cat_idx = cats.index('Framework')
+        cat_name = row[cat_idx]
         x_labels.append(cat_name)
 
-        cat_idx = np.where(cat_dict[key][0] == category)[0][0]
-        cat_val = cat_dict[key][1][cat_idx]
-        y_bar.append(cat_val)
-
+        # Y-axis
+        y_idx = cats.index('Median')
+        y_val = row[y_idx]
+        y_bar.append(y_val)
 
     ax.bar(ind, y_bar, width=width, color='deepskyblue')
     plt.grid()
-    ax.set_ylabel('{} time per epoch [sec]'.format(category), fontsize=18)
+    ax.set_ylabel('{} time per epoch [sec]'.format(category), fontsize=16)
     ax.set_xticks(ind)
-    ax.set_xticklabels(x_labels, rotation=0,fontsize=18)
-    ax.set_title(title, fontsize=18)
+    ax.set_xticklabels(x_labels, rotation=0, fontsize=16)
+    ax.set_title(title, fontsize=16)
 
     return fig, ax

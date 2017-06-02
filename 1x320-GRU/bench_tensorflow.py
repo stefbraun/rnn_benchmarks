@@ -4,21 +4,13 @@ from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 import os
 
-
-# Tensorflow helper function for many-to-last mapping problem (yes, this is a problem in tensorflow.)
-def last_relevant(output, length):
-    batch_size = tf.shape(output)[0]
-    max_length = tf.shape(output)[1]
-    out_size = int(output.get_shape()[2])
-    index = tf.range(0, batch_size) * max_length + (length - 1)
-    flat = tf.reshape(output, [-1, out_size])
-    relevant = tf.gather(flat, index)
-    return relevant
-
+# Experiment_type
+framework = 'tensorflow'
+experiment = '1x320GRU'
 
 # Get data
-bX, bY, b_lenX, maskX = toy_batch()
-inp_dims = bX.shape[2]
+bX, b_lenX, bY, classes = toy_batch()
+batch_size, max_len, inp_dims = bX.shape
 rnn_size, learning_rate, epochs = default_params()
 
 # Create symbolic vars
@@ -28,11 +20,12 @@ y = tf.placeholder(tf.int32, [None])
 
 # Create network
 fw_cell = tf.contrib.rnn.GRUCell(rnn_size)
-hidden, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
-hidden_last = last_relevant(hidden, seq_len)
+h1, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
+h2 = h1[:, -1, :]
+h3 = tf.layers.dense(h2, units=classes, activation=tf.nn.relu)
 
 # Create loss, optimizer and train function
-loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=hidden_last, labels=y))
+loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=h2, labels=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 
 train_step = optimizer.minimize(loss)
@@ -40,31 +33,29 @@ train_step = optimizer.minimize(loss)
 # Initialize session
 init = tf.global_variables_initializer()
 config = tf.ConfigProto()
-config.gpu_options.allow_growth = True  # dynamic allocation of VRAM
+config.gpu_options.allow_growth = False  # dynamic allocation of VRAM
 
 # Print parameter count
-total_parameters = 0
+params = 0
 for variable in tf.trainable_variables():
     # shape is an array of tf.Dimension
     shape = variable.get_shape()
     variable_parametes = 1
     for dim in shape:
         variable_parametes *= dim.value
-    total_parameters += variable_parametes
-print('# network parameters: ' + str(total_parameters))
+    params += variable_parametes
+print('# network parameters: ' + str(params))
 
 # Start training
 with tf.Session(config=config) as sess:
     sess.run(init)
     time = []
     for i in range(epochs):
+        print('Epoch {}/{}'.format(i, epochs))
         start = timer()
-        _, output = sess.run([train_step, hidden_last], feed_dict={x: bX, y: bY, seq_len: b_lenX})
+        _, output = sess.run([train_step, h3], feed_dict={x: bX, y: bY, seq_len: b_lenX})
         end = timer()
         time.append(end - start)
-write_results(os.path.basename(__file__), time)
+        assert (output.shape == (batch_size, classes))
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
 print_results(time)
-
-# Plot results
-plot_results(time)
-plt.show()
