@@ -1,5 +1,5 @@
 import lasagne
-from data import toy_batch, default_params, write_results, print_results, plot_results
+from support import toy_batch, default_params, write_results, print_results, plot_results
 from timeit import default_timer as timer
 import theano.tensor as T
 import theano
@@ -67,3 +67,7 @@ for i in range(epochs):
     assert (output.shape == (batch_size, classes))
 write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
 print_results(time)
+
+# Plot results
+fig, ax = plot_results(time)
+fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

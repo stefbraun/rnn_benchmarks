@@ -1,39 +1,54 @@
 import tensorflow as tf
-from data import toy_batch, default_params, write_results, print_results, plot_results
+from support import toy_batch_ctc, default_params, write_results, print_results, plot_results, target_converter, sparse_tuple_from
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
-# Tensorflow helper function for many-to-last mapping problem (yes, this is a problem in tensorflow.)
-def last_relevant(output, length):
-    batch_size = tf.shape(output)[0]
-    max_length = tf.shape(output)[1]
-    out_size = int(output.get_shape()[2])
-    index = tf.range(0, batch_size) * max_length + (length - 1)
-    flat = tf.reshape(output, [-1, out_size])
-    relevant = tf.gather(flat, index)
-    return relevant
+# Experiment_type
+framework = 'tensorflow'
+experiment = '4x320LSTM_CTC'
 
 # Get data
-bX, bY, b_lenX, maskX = toy_batch()
-inp_dims = bX.shape[2]
+bX, b_lenX, maskX, bY, b_lenY, classes = toy_batch_ctc()
+batch_size, seq_len, inp_dims = bX.shape
 rnn_size, learning_rate, epochs = default_params()
 
 # Create symbolic vars
 x = tf.placeholder(tf.float32, [None, None, inp_dims])
-seq_len = tf.placeholder(tf.int32, [None])
-y = tf.placeholder(tf.int32, [None])
-seqlen = tf.placeholder(tf.int32, [None])
+x_len = tf.placeholder(tf.int32, [None])
+y = tf.sparse_placeholder(tf.int32, [None])
+
+weights = {'out': tf.Variable(tf.truncated_normal(shape=[2 * rnn_size, classes], stddev=0.1), name='W_out')}
+biases = {'out': tf.Variable(tf.zeros([classes]), name='b_out')}
+
 
 # Create network
-fw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
-bw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
+def get_EESEN(x, rnn_size, weights, biases, x_len, classes):
+    shape = tf.shape(x)
+    batch_size, max_timesteps = shape[0], shape[1]
 
-final_hidden, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=[fw_cell]*4, cells_bw=[bw_cell]*4, inputs=x, sequence_length=seq_len, dtype=tf.float32)
-hidden_last = last_relevant(final_hidden, seq_len)
+    with tf.name_scope('MultiLSTM'):
+        fw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
+        bw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
+
+        h1, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=[fw_cell] * 4, cells_bw=[bw_cell] * 4,
+                                                                  inputs=x, sequence_length=x_len, dtype=tf.float32)
+
+    with tf.name_scope('Affine'):
+        h1_rs = tf.reshape(h1, [-1, 2 * rnn_size])
+        logits = tf.matmul(h1_rs, weights['out']) + biases['out']
+        logits = tf.reshape(logits, [batch_size, max_timesteps, classes])
+        logits = tf.transpose(logits, (1, 0, 2))
+
+    return logits
+
+
+pred = get_EESEN(x=x, rnn_size=rnn_size, weights=weights, biases=biases, x_len=x_len, classes=classes)
+
 
 # Create loss, optimizer and train function
-loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=hidden_last, labels=y))
+loss = tf.reduce_mean(tf.nn.ctc_loss(inputs=pred, labels=y, sequence_length=x_len, time_major=True))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 
 train_step = optimizer.minimize(loss)
@@ -41,33 +56,39 @@ train_step = optimizer.minimize(loss)
 # Initialize session
 init = tf.global_variables_initializer()
 config = tf.ConfigProto()
-config.gpu_options.allow_growth=False
+config.gpu_options.allow_growth = False
 
 # Print parameter count
-total_parameters = 0
+params = 0
 for variable in tf.trainable_variables():
     # shape is an array of tf.Dimension
     shape = variable.get_shape()
     variable_parametes = 1
     for dim in shape:
         variable_parametes *= dim.value
-    total_parameters += variable_parametes
-print('# network parameters: ' + str(total_parameters))
+    params += variable_parametes
+print('# network parameters: ' + str(params))
 
 # Start training
 with tf.Session(config=config) as sess:
     sess.run(init)
-    time=[]
+    time = []
+    # Convert labels
+    bY = target_converter(bY, b_lenY)
+    bY = sparse_tuple_from(bY)
+
     for i in range(epochs):
         print('Epoch {}/{}'.format(i, epochs))
-        start =timer()
-        _, output = sess.run([train_step, hidden_last], feed_dict={x: bX, y: bY, seq_len: b_lenX})
-        end = timer()
-        time.append(end-start)
 
-write_results(os.path.basename(__file__), time)
+        start = timer()
+        _, output = sess.run([train_step, pred], feed_dict={x: bX, y: bY, x_len: b_lenX})
+        end = timer()
+        time.append(end - start)
+        assert (output.shape == (seq_len, batch_size, classes))
+
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
 print_results(time)
 
 # Plot results
-plot_results(time)
-plt.show()
+fig, ax =plot_results(time)
+fig.savefig('{}_{}.pdf'.format(framework,experiment), bbox_inches='tight')

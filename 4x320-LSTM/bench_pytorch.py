@@ -1,13 +1,14 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from data import toy_batch, default_params, write_results, print_results, plot_results
+from support import toy_batch, default_params, write_results, print_results, plot_results
 from timeit import default_timer as timer
 import numpy as np
 import matplotlib.pyplot as plt
 import torch.optim as optim
 import os
 import torch.nn.functional as F
+import editdistance
 
 # Experiment_type
 framework = 'pytorch'
@@ -60,6 +61,7 @@ torch.cuda.synchronize()
 
 # Start training
 time = []
+ed=[]
 for i in range(epochs):
     print('Epoch {}/{}'.format(i, epochs))
     start = timer()
@@ -71,6 +73,20 @@ for i in range(epochs):
     optimizer.step()
     end = timer()
     time.append(end - start)
-    assert (output.cpu().data.numpy().shape == (batch_size, classes))
+    output_numpy = output.cpu().data.numpy()
+    assert (output_numpy.shape == (batch_size, classes))
+
+    # Test classification quality
+    target = bY.cpu().data.numpy()
+    prediction = np.argmax(output_numpy, axis=1)
+    ed.append(editdistance.eval(target, prediction))
+
+    if i > 50:
+        assert (np.min(ed) < batch_size / 5)
+
 write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
 print_results(time)
+
+# Plot results
+fig, ax = plot_results(time)
+fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

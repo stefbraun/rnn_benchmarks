@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os.path
 
 
-def toy_batch(seed=11, shape=(25, 1000, 123), classes=15):
+def toy_batch(seed=11, shape=(25, 1000, 123), classes=25):
     batch_size, max_len, features = shape
     np.random.seed(seed)
 
@@ -13,7 +13,7 @@ def toy_batch(seed=11, shape=(25, 1000, 123), classes=15):
     b_lenX = np.int32(np.ones(batch_size) * max_len)
 
     # Targets
-    bY = np.int32(np.random.randint(low=0, high=classes, size=batch_size))
+    bY = np.int32(np.random.randint(low=0, high=classes-1, size=batch_size))
 
     return bX, b_lenX, bY, classes
 
@@ -24,13 +24,14 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
 
     # Samples
     bX = np.float32(np.random.uniform(-1, 1, (shape)))
-    b_lenX = np.int32(np.linspace(max_len / 2, max_len, batch_size))
+    b_lenX = np.int32(np.linspace(max_len/2, max_len, batch_size))
+    print(b_lenX)
     maskX = np.zeros((batch_size, max_len), dtype='float32')
     for i, len_sample in enumerate(b_lenX):
         maskX[i, :len_sample] = np.ones((1, len_sample))
 
     # Targets
-    bY = np.int32(np.random.randint(low=1, high=classes + 1,
+    bY = np.int32(np.random.randint(low=1, high=classes-1,
                                     size=batch_size * 100))  # remember warp-ctc: 0 is the blank label WTF.
     b_lenY = np.int32(np.ones(batch_size) * 100)  # labels per sample comes from WSJ-si84
 
@@ -40,7 +41,7 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
 def default_params():
     rnn_size = 320
     learning_rate = 1e-3
-    epochs = 50
+    epochs = 100
     return rnn_size, learning_rate, epochs
 
 
@@ -69,10 +70,12 @@ def print_results(run_time):
 
 
 def plot_results(time):
-    plt.scatter(range(len(time)), time)
-    plt.grid()
-    plt.xlabel('Epoch #')
-    plt.ylabel('Time per epoch [sec]')
+    fig, ax = plt.subplots()
+    ax.scatter(range(len(time)), time)
+    ax.grid()
+    ax.set_xlabel('Epoch #')
+    ax.set_ylabel('Time per epoch [sec]')
+    return fig, ax
 
 
 def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
@@ -113,3 +116,30 @@ def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3
     ax.set_title(title, fontsize=16)
 
     return fig, ax
+
+# Helper functions for label conversion from warp-ctc to tf-ctc format:-(
+def target_converter(bY, b_lenY):
+    b_lenY_cs = np.cumsum(b_lenY)[:-1]
+    bY_conv = np.split(bY, b_lenY_cs)
+    return bY_conv
+
+
+def sparse_tuple_from(sequences, dtype=np.int32):
+    """Create a sparse representention of x.
+    Args:
+        sequences: a list of lists of type dtype where each element is a sequence
+    Returns:
+        A tuple with (indices, values, shape)
+    """
+    indices = []
+    values = []
+
+    for n, seq in enumerate(sequences):
+        indices.extend(zip([n] * len(seq), xrange(len(seq))))
+        values.extend(seq)
+
+    indices = np.asarray(indices, dtype=np.int64)
+    values = np.asarray(values, dtype=dtype)
+    shape = np.asarray([len(sequences), np.asarray(indices).max(0)[1] + 1], dtype=np.int64)
+
+    return indices, values, shape
