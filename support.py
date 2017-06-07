@@ -41,7 +41,7 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
 def default_params():
     rnn_size = 320
     learning_rate = 1e-3
-    epochs = 100
+    epochs = 10
     return rnn_size, learning_rate, epochs
 
 
@@ -78,7 +78,7 @@ def plot_results(time):
     return fig, ax
 
 
-def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
+def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
     cat_dict = dict()
     cat = 0
     with open(logfile, 'rb') as f:
