@@ -34,7 +34,7 @@ We train for 50 epochs and report the median of the runtimes per epoch in [msec]
 
 
 ## Gimme those bar charts
-<img align="middle" src="/results/bars/bars1x320_ce.png" width="300">
-<img align="middle" src="/results/bars/bars4x320_ce.png" width="300">
-<img align="middle" src="/results/bars/bars4x320_ctc.png" width="300">
+<img align="middle" src="/results/bars/bars_1x320_ce.png" width="300">
+<img align="middle" src="/results/bars/bars_4x320_ce.png" width="300">
+<img align="middle" src="/results/bars/bars_4x320_ctc.png" width="300">
 
