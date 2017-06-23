@@ -9,7 +9,7 @@ import numpy as np
 
 # Experiment_type
 framework = 'lasagne'
-experiment = '1x320GRU'
+experiment = '1x320LSTM'
 
 # Get data
 bX, b_lenX, bY, classes = toy_batch()
@@ -30,7 +30,7 @@ def get_bench_net(input_var, inp_dim, rnn_size):
     batch_size, seq_len, _ = input_var.shape
 
     # RNN layers
-    h1 = lasagne.layers.GRULayer(l_in, num_units=rnn_size, hid_init=lasagne.init.GlorotUniform())
+    h1 = lasagne.layers.LSTMLayer(l_in, num_units=rnn_size, hid_init=lasagne.init.GlorotUniform())
     h2 = lasagne.layers.SliceLayer(h1, -1, axis=1)
     h3 = lasagne.layers.DenseLayer(h2, num_units=classes, nonlinearity=lasagne.nonlinearities.rectify)
     return h3

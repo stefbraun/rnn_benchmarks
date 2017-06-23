@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch.optim as optim
 import os
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from warpctc_pytorch import CTCLoss
 import editdistance
 
@@ -40,11 +40,10 @@ class Net(nn.Module):
         self.fc = nn.Linear(rnn_size * 2, classes, bias=True)
 
     def forward(self, x):
-        batch_size = x.batch_sizes[0]
-        h1, state = self.lstm(x)
-        h2, lens = pad_packed_sequence(h1)
-        h3 = h2.view(-1, rnn_size*2)
-        h4 = self.fc(h3)
+        h1p, state = self.lstm(x)
+        h3 = self.fc(h1p.data)
+        h3p = PackedSequence(h3[:, :], h1p.batch_sizes)
+        h4, lens = pad_packed_sequence(h3p)
         h5 = h4.view(-1, batch_size, classes)
         return h5
 
@@ -64,9 +63,6 @@ print('# network parameters: ' + str(params))
 # Create optimizer
 optimizer = optim.Adam(net.parameters(), lr=learning_rate)
 
-# Synchronize for more precise timing
-torch.cuda.synchronize()
-
 # Start training
 time = []
 for i in range(epochs):
@@ -74,15 +70,16 @@ for i in range(epochs):
     start = timer()
     optimizer.zero_grad()
     output = net(bX)
-    criterion = CTCLoss()  # loss definition
+    criterion = CTCLoss()  # TODO move out of loop loss definition
     loss = criterion(output, bY, b_lenX, b_lenY)
     loss.backward()
     optimizer.step()
+    # Synchronize for more precise timing
+    torch.cuda.synchronize()
     end = timer()
     time.append(end - start)
     output_numpy = output.cpu().data.numpy()
     assert (output_numpy.shape == (seq_len, batch_size, classes))
-
 
 write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
               run_time=time)

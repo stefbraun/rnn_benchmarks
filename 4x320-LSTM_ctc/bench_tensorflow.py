@@ -29,10 +29,10 @@ def get_EESEN(x, rnn_size, weights, biases, x_len, classes):
     batch_size, max_timesteps = shape[0], shape[1]
 
     with tf.name_scope('MultiLSTM'):
-        fw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
-        bw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
+        fw_cell = [tf.nn.rnn_cell.LSTMCell(rnn_size) for _ in range(4)]
+        bw_cell = [tf.nn.rnn_cell.LSTMCell(rnn_size) for _ in range(4)]
 
-        h1, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=[fw_cell] * 4, cells_bw=[bw_cell] * 4,
+        h1, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=fw_cell, cells_bw=bw_cell,
                                                                   inputs=x, sequence_length=x_len, dtype=tf.float32)
 
     with tf.name_scope('Affine'):

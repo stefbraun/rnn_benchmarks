@@ -19,10 +19,10 @@ x_len = tf.placeholder(tf.int32, [None])
 y = tf.placeholder(tf.int32, [None])
 
 # Create network
-fw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
-bw_cell = tf.contrib.rnn.LSTMCell(rnn_size)
+fw_cell = [tf.nn.rnn_cell.LSTMCell(rnn_size) for _ in range(4)]
+bw_cell = [tf.nn.rnn_cell.LSTMCell(rnn_size) for _ in range(4)]
 
-h1, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=[fw_cell] * 4, cells_bw=[bw_cell] * 4,
+h1, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=fw_cell, cells_bw=bw_cell,
                                                                     inputs=x, sequence_length=x_len, dtype=tf.float32)
 h2 = h1[:, -1, :]
 h3 = tf.layers.dense(h2, units=classes, activation=tf.nn.relu)

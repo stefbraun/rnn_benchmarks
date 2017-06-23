@@ -18,7 +18,7 @@ def toy_batch(seed=11, shape=(25, 1000, 123), classes=25):
     return bX, b_lenX, bY, classes
 
 
-def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
+def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=59):
     batch_size, max_len, features = shape
     np.random.seed(seed)
 
@@ -32,7 +32,7 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
 
     # Targets
     bY = np.int32(np.random.randint(low=1, high=classes-1,
-                                    size=batch_size * 100))  # remember warp-ctc: 0 is the blank label WTF.
+                                    size=batch_size * 100))  # remember warp-ctc: 0 is the blank label, tensorflow-ctc: -1 is the blank label
     b_lenY = np.int32(np.ones(batch_size) * 100)  # labels per sample comes from WSJ-si84
 
     return bX, b_lenX, maskX, bY, b_lenY, classes
@@ -41,7 +41,7 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=58):
 def default_params():
     rnn_size = 320
     learning_rate = 1e-3
-    epochs = 10
+    epochs = 500
     return rnn_size, learning_rate, epochs
 
 
@@ -78,10 +78,10 @@ def plot_results(time):
     return fig, ax
 
 
-def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
+def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
     cat_dict = dict()
     cat = 0
-    with open(logfile, 'rb') as f:
+    with open(logfile, 'rt') as f:
         f = csv.reader(f)
         experiments = []
         for idx, row in enumerate(f):
@@ -91,7 +91,7 @@ def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=
                 experiments.append(row)
 
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(16,9))
     ind = np.arange(len(selection))
     width = 0.3
     x_labels = []
