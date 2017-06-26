@@ -35,7 +35,7 @@ We train for 500 epochs and report the median of the runtimes per epoch in [sec]
   |----------------------|---------------|---------|------------|-------------|------------|
   | 1x320 unidir GRU (1) | Cross-Entropy | No      | 0.32 sec   | 0.59 sec    | 0.12 sec   |
   | 4x320 bidir LSTM (2) | Cross-Entropy | No      | 3.38 sec   | 5.07 sec    | 1.05 sec   |
-  | 4x320 bidir LSTM (3) | CTC           | Yes     | 4.60 sec   | 5.22 sec    | 2.42 sec   |
+  | 4x320 bidir LSTM (3) | CTC           | Yes     | 4.60 sec   | 5.22 sec    | 1.35 sec   |
   
   1. L1: 1x320 GRU, L2: 25 Dense, ~435K params, cross entropy loss, no masking
   2. L1-L4: 4x320 bidir LSTM, L5: 15 Dense, ~8.5M params, cross entropy loss, no masking

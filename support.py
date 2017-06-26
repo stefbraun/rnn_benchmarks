@@ -41,7 +41,7 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=59):
 def default_params():
     rnn_size = 320
     learning_rate = 1e-3
-    epochs = 500
+    epochs = 10
     return rnn_size, learning_rate, epochs
 
 
@@ -78,7 +78,7 @@ def plot_results(time):
     return fig, ax
 
 
-def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
+def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
     cat_dict = dict()
     cat = 0
     with open(logfile, 'rt') as f:
@@ -91,7 +91,7 @@ def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3
                 experiments.append(row)
 
 
-    fig, ax = plt.subplots(figsize=(16,9))
+    fig, ax = plt.subplots(figsize=(8,4.5))
     ind = np.arange(len(selection))
     width = 0.3
     x_labels = []
@@ -108,12 +108,29 @@ def bar_chart(logfile='results/results.csv', category='Median', selection=[1,2,3
         y_val = row[y_idx]
         y_bar.append(y_val)
 
-    ax.bar(ind, y_bar, width=width, color='deepskyblue')
+    color_list = []
+    processed_x_lables =[]
+    for label in x_labels:
+        if 'tensorflow' in label:
+            color_list.append('red')
+        elif 'pytorch' in label:
+            color_list.append('green')
+        elif 'lasagne' in label:
+            color_list.append('blue')
+        else:
+            color_list.append('deepskyblue')
+        processed_x_lables.append('\n'.join(label.split('_')))
+
+    color = ['red', 'green', 'blue']
+    ax.bar(ind, y_bar, width=width, color=color_list)
     plt.grid()
-    ax.set_ylabel('{} time per epoch [sec]'.format(category), fontsize=16)
+    ax.tick_params(axis='y', labelsize=14)
+    ax.set_ylabel('{} time per epoch [sec]'.format(category), fontsize=14)
     ax.set_xticks(ind)
-    ax.set_xticklabels(x_labels, rotation=0, fontsize=16)
-    ax.set_title(title, fontsize=16)
+
+    ax.set_xticklabels(processed_x_lables, rotation=0, fontsize=14)
+
+    ax.set_title(title, fontsize=14)
 
     return fig, ax
 

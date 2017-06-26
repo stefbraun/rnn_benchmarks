@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import editdistance
 
 # Experiment_type
-framework = 'pytorch_cudnn'
+framework = 'pytorch_cudnn_LSTM'
 experiment = '1x320LSTM'
 
 # Get data

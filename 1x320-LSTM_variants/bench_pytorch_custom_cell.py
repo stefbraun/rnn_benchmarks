@@ -13,7 +13,7 @@ from torch.autograd import Variable
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'pytorch_custom_cell'
+framework = 'pytorch_custom_LSTMcell'
 experiment = '1x320LSTM'
 
 # Get data
