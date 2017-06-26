@@ -48,9 +48,11 @@ We train for 500 epochs and report the median of the runtimes per epoch in [sec]
   4. L1: 1x320 LSTM, L2: 25 Dense, ~578K params, cross entropy loss, no masking. See documentation: [PyTorch cudnn LSTM](http://pytorch.org/docs/nn.html#lstm), [PyTorch LSTMCell](http://pytorch.org/docs/nn.html#lstmcell), [PyTorch Custom LSTMCell](https://github.com/jihunchoi/recurrent-batch-normalization-pytorch/blob/master/bnlstm.py)
 
 ## Gimme those bar charts
-<img align="middle" src="/results/bars/bars_1x320GRU_ce.png" width="400"> <img align="middle" src="/results/bars/bars_1x320LSTM_ce.png" width="400">
+<img align="middle" src="/results/bars/bars_1x320GRU_ce.png" width="400"> 
 
 <img align="middle" src="/results/bars/bars_4x320LSTM_ce.png" width="400"> <img align="middle" src="/results/bars/bars_4x320LSTM_ctc.png" width="400">
+
+<img align="middle" src="/results/bars/bars_1x320LSTM_ce.png" width="400">
 
 
 
