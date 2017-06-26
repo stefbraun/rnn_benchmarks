@@ -41,11 +41,11 @@ We train for 500 epochs and report the median of the runtimes per epoch in [sec]
   2. L1-L4: 4x320 bidir LSTM, L5: 15 Dense, ~8.5M params, cross entropy loss, no masking
   3. L1-L4: 4x320 bidir LSTM, L5: 59 Dense, ~8.5M params, CTC loss, masking
   
-  | Network              | Loss          | Masking | Lasagne    | Tensorflow  | PyTorch<br>cudnn<br>LSTM | Pytorch<br>LSTMCell| Pytorch<br>Custom<br>LSTMCell|
+  | Network              | Loss          | Masking | Lasagne    | Tensorflow  | PyTorch<br>cudnn<br>LSTM | PyTorch<br>LSTMCell| Pytorch<br>Custom<br>LSTMCell|
   |----------------------|---------------|---------|------------|-------------|----------------|-----------------|---------|
   | 1x320 unidir LSTM (4)| Cross-Entropy | No      | 0.40 sec   | 0.59 sec    | 0.18 sec       | 0.44 sec        | 1.16 sec|
   
-  4. L1: 1x320 LSTM, L2: 25 Dense, ~578K params, cross entropy loss, no masking
+  4. L1: 1x320 LSTM, L2: 25 Dense, ~578K params, cross entropy loss, no masking. See documentation: [PyTorch cudnn LSTM](http://pytorch.org/docs/nn.html#lstm), [PyTorch LSTMCell](http://pytorch.org/docs/nn.html#lstmcell), [PyTorch Custom LSTMCell](https://github.com/jihunchoi/recurrent-batch-normalization-pytorch/blob/master/bnlstm.py)
 
 ## Gimme those bar charts
 <img align="middle" src="/results/bars/bars_1x320GRU_ce.png" width="400"> <img align="middle" src="/results/bars/bars_1x320LSTM_ce.png" width="400">
