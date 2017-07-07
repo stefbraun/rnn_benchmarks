@@ -1,10 +1,11 @@
-import lasagne
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import theano.tensor as T
-import theano
-import matplotlib.pyplot as plt
 import os
+from timeit import default_timer as timer
+
+import lasagne
+import theano
+import theano.tensor as T
+
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'lasagne'
@@ -81,7 +82,8 @@ for i in range(epochs):
     time.append(end - start)
     output = output_fn(bX)
     assert (output.shape == (batch_size, classes))
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

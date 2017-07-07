@@ -1,14 +1,15 @@
+import os
+from timeit import default_timer as timer
+
+import editdistance
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import numpy as np
-import matplotlib.pyplot as plt
-import torch.optim as optim
-import os
 import torch.nn.functional as F
-import editdistance
+import torch.optim as optim
+from torch.autograd import Variable
+
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'pytorch'
@@ -32,7 +33,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.lstm = nn.LSTM(input_size=inp_dims, hidden_size=rnn_size, num_layers=4, bias=True, bidirectional=True)
-        self.fc = nn.Linear(rnn_size*2, classes, bias=True)
+        self.fc = nn.Linear(rnn_size * 2, classes, bias=True)
 
     def forward(self, x):
         h1, state = self.lstm(x)
@@ -61,7 +62,7 @@ torch.cuda.synchronize()
 
 # Start training
 time = []
-ed=[]
+ed = []
 for i in range(epochs):
     print('Epoch {}/{}'.format(i, epochs))
     start = timer()
@@ -84,7 +85,8 @@ for i in range(epochs):
     if i > 50:
         assert (np.min(ed) < batch_size / 5)
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

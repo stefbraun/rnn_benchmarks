@@ -1,13 +1,12 @@
-import tensorflow as tf
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
 import os
-import numpy as np
-import editdistance
+from timeit import default_timer as timer
+
+import tensorflow as tf
+
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'tensorflow'
+framework = 'tensorflow_LSTMBlockCell'
 experiment = '1x320LSTM'
 
 # Get data
@@ -21,7 +20,7 @@ seq_len = tf.placeholder(tf.int32, [None])
 y = tf.placeholder(tf.int32, [None])
 
 # Create network
-fw_cell = tf.nn.rnn_cell.LSTMCell(rnn_size)
+fw_cell = tf.contrib.rnn.LSTMBlockCell(rnn_size)
 
 h1, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
 h2 = h1[:, -1, :]

@@ -3,12 +3,11 @@ from timeit import default_timer as timer
 
 import tensorflow as tf
 
-# from rnn_benchmarks import support
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'tensorflow'
-experiment = '1x320GRU'
+framework = 'tensorflow_LSTMCell'
+experiment = '1x320LSTM'
 
 # Get data
 bX, b_lenX, bY, classes = toy_batch()
@@ -21,7 +20,7 @@ seq_len = tf.placeholder(tf.int32, [None])
 y = tf.placeholder(tf.int32, [None])
 
 # Create network
-fw_cell = tf.nn.rnn_cell.GRUCell(rnn_size)
+fw_cell = tf.nn.rnn_cell.LSTMCell(rnn_size)
 
 h1, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
 h2 = h1[:, -1, :]
@@ -37,7 +36,7 @@ train_step = optimizer.minimize(loss)
 init = tf.global_variables_initializer()
 config = tf.ConfigProto()
 # config.gpu_options.allow_growth = False  # dynamic allocation of VRAM
-
+config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
 # Print parameter count
 params = 0

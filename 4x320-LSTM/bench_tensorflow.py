@@ -1,8 +1,9 @@
-import tensorflow as tf
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
 import os
+from timeit import default_timer as timer
+
+import tensorflow as tf
+
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'tensorflow'
@@ -23,10 +24,9 @@ fw_cell = [tf.nn.rnn_cell.LSTMCell(rnn_size) for _ in range(4)]
 bw_cell = [tf.nn.rnn_cell.LSTMCell(rnn_size) for _ in range(4)]
 
 h1, _, _ = tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=fw_cell, cells_bw=bw_cell,
-                                                                    inputs=x, sequence_length=x_len, dtype=tf.float32)
+                                                          inputs=x, sequence_length=x_len, dtype=tf.float32)
 h2 = h1[:, -1, :]
 h3 = tf.layers.dense(h2, units=classes, activation=tf.nn.relu)
-
 
 # Create loss, optimizer and train function
 loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=h3, labels=y))
@@ -61,7 +61,8 @@ with tf.Session(config=config) as sess:
         end = timer()
         time.append(end - start)
         assert (output.shape == (batch_size, classes))
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

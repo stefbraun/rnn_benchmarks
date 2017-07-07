@@ -1,11 +1,11 @@
-import lasagne
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import theano.tensor as T
-import theano
-import matplotlib.pyplot as plt
 import os
-import numpy as np
+from timeit import default_timer as timer
+
+import lasagne
+import theano
+import theano.tensor as T
+
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'lasagne'
@@ -39,18 +39,9 @@ def get_bench_net(input_var, inp_dim, rnn_size):
 # Create network
 network = get_bench_net(x, inp_dims, rnn_size)
 
-
 # Print parameter count
 params = lasagne.layers.count_params(network)
 print('# network parameters: ' + str(params))
-
-# # Set params to constant
-# params = lasagne.layers.get_all_param_values(network)
-# param_list=[]
-# for p in params:
-#     param_list.append(np.ones(p.shape, dtype='float32'))
-#     print(p.shape)
-# lasagne.layers.set_all_param_values(network, param_list)
 
 # Create loss, optimizer and train function
 prediction = lasagne.layers.get_output(network)
@@ -75,7 +66,8 @@ for i in range(epochs):
     time.append(end - start)
     output = output_fn(bX)
     assert (output.shape == (batch_size, classes))
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

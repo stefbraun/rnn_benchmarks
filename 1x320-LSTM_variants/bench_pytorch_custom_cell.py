@@ -1,8 +1,6 @@
 import os
 from timeit import default_timer as timer
 
-import bnlstm as bl
-import editdistance
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,6 +8,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
+import bnlstm as bl
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
@@ -37,7 +36,7 @@ class Net(nn.Module):
         self.fc = nn.Linear(rnn_size, classes, bias=True)
 
     def forward(self, x):
-        max_len, batch_size, features =x.size()
+        max_len, batch_size, features = x.size()
         h_lstm = Variable(torch.zeros(batch_size, rnn_size)).cuda()
         c_lstm = Variable(torch.zeros(batch_size, rnn_size)).cuda()
         output = []
@@ -68,7 +67,7 @@ optimizer = optim.Adam(net.parameters(), lr=learning_rate)
 
 # Start training
 time = []
-ed=[]
+ed = []
 for i in range(epochs):
     print('Epoch {}/{}'.format(i, epochs))
     start = timer()
@@ -84,7 +83,8 @@ for i in range(epochs):
     output_numpy = output.cpu().data.numpy()
     assert (output_numpy.shape == (batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

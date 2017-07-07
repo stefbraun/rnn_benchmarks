@@ -1,9 +1,10 @@
-import tensorflow as tf
-from support import toy_batch_ctc, default_params, write_results, print_results, plot_results, target_converter, sparse_tuple_from
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
 import os
-import numpy as np
+from timeit import default_timer as timer
+
+import tensorflow as tf
+
+from support import toy_batch_ctc, default_params, write_results, print_results, plot_results, target_converter, \
+    sparse_tuple_from
 
 # Experiment_type
 framework = 'tensorflow'
@@ -46,7 +47,6 @@ def get_EESEN(x, rnn_size, weights, biases, x_len, classes):
 
 pred = get_EESEN(x=x, rnn_size=rnn_size, weights=weights, biases=biases, x_len=x_len, classes=classes)
 
-
 # Create loss, optimizer and train function
 loss = tf.reduce_mean(tf.nn.ctc_loss(inputs=pred, labels=y, sequence_length=x_len, time_major=True))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
@@ -86,9 +86,10 @@ with tf.Session(config=config) as sess:
         time.append(end - start)
         assert (output.shape == (seq_len, batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results
-fig, ax =plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework,experiment), bbox_inches='tight')
+fig, ax = plot_results(time)
+fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

@@ -1,15 +1,15 @@
+import os
+from timeit import default_timer as timer
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from support import toy_batch_ctc, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import numpy as np
-import matplotlib.pyplot as plt
 import torch.optim as optim
-import os
+from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from warpctc_pytorch import CTCLoss
-import editdistance
+
+from support import toy_batch_ctc, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'pytorch'

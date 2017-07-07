@@ -1,16 +1,14 @@
+import os
+from timeit import default_timer as timer
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import numpy as np
-import matplotlib.pyplot as plt
-import torch.optim as optim
-import os
 import torch.nn.functional as F
-import editdistance
-import torch.nn.init as weight_init
+import torch.optim as optim
+from torch.autograd import Variable
 
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'pytorch'
@@ -37,24 +35,14 @@ class Net(nn.Module):
         self.fc = nn.Linear(rnn_size, classes, bias=True)
 
     def forward(self, x):
-        h1, state = self.gru(x) # RNN
-        h2 = h1[-1, :, :] # slice final output
+        h1, state = self.gru(x)  # RNN
+        h2 = h1[-1, :, :]  # slice final output
         h3 = F.relu(self.fc(h2))
         return h3
 
 
 net = Net()
 net.cuda()  # move network to GPU
-
-# params = list(net.parameters())
-# param_list=[]
-# dict = {}
-# for name, param in net.named_parameters():
-#     weight_init.constant(param, 1)
-#     dict[name] = param
-#     print(param.size())
-#     print name
-
 
 # Print parameter count
 params = 0
@@ -96,8 +84,8 @@ for i in range(epochs):
     # ed.append(editdistance.eval(target, prediction))
     # print(ed[-1])
 
-
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

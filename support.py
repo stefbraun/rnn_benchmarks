@@ -1,7 +1,8 @@
-import numpy as np
 import csv
-import matplotlib.pyplot as plt
 import os.path
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def toy_batch(seed=11, shape=(25, 1000, 123), classes=25):
@@ -13,7 +14,7 @@ def toy_batch(seed=11, shape=(25, 1000, 123), classes=25):
     b_lenX = np.int32(np.ones(batch_size) * max_len)
 
     # Targets
-    bY = np.int32(np.random.randint(low=0, high=classes-1, size=batch_size))
+    bY = np.int32(np.random.randint(low=0, high=classes - 1, size=batch_size))
 
     return bX, b_lenX, bY, classes
 
@@ -24,14 +25,14 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=59):
 
     # Samples
     bX = np.float32(np.random.uniform(-1, 1, (shape)))
-    b_lenX = np.int32(np.linspace(max_len/2, max_len, batch_size))
+    b_lenX = np.int32(np.linspace(max_len / 2, max_len, batch_size))
     print(b_lenX)
     maskX = np.zeros((batch_size, max_len), dtype='float32')
     for i, len_sample in enumerate(b_lenX):
         maskX[i, :len_sample] = np.ones((1, len_sample))
 
     # Targets
-    bY = np.int32(np.random.randint(low=1, high=classes-1,
+    bY = np.int32(np.random.randint(low=1, high=classes - 1,
                                     size=batch_size * 100))  # remember warp-ctc: 0 is the blank label, tensorflow-ctc: -1 is the blank label
     b_lenY = np.int32(np.ones(batch_size) * 100)  # labels per sample comes from WSJ-si84
 
@@ -41,7 +42,7 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=59):
 def default_params():
     rnn_size = 320
     learning_rate = 1e-3
-    epochs = 10
+    epochs = 500
     return rnn_size, learning_rate, epochs
 
 
@@ -78,7 +79,7 @@ def plot_results(time):
     return fig, ax
 
 
-def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=[1,2,3], title='Time per epoch'):
+def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=[1, 2, 3], title='Time per epoch'):
     cat_dict = dict()
     cat = 0
     with open(logfile, 'rt') as f:
@@ -89,15 +90,16 @@ def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=
                 cats = row
             elif idx in selection:
                 experiments.append(row)
-
-
-    fig, ax = plt.subplots(figsize=(8,4.5))
+    if len(selection) > 5:
+        fig_width = 8 + 1.3 * len(selection) - 5
+    else:
+        fig_width = 8
+    fig, ax = plt.subplots(figsize=(fig_width, 4.5))
     ind = np.arange(len(selection))
     width = 0.3
     x_labels = []
     y_bar = []
     for row in experiments:
-
         # X-axis
         cat_idx = cats.index('Framework')
         cat_name = row[cat_idx]
@@ -109,7 +111,7 @@ def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=
         y_bar.append(y_val)
 
     color_list = []
-    processed_x_lables =[]
+    processed_x_lables = []
     for label in x_labels:
         if 'tensorflow' in label:
             color_list.append('red')
@@ -133,6 +135,7 @@ def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=
     ax.set_title(title, fontsize=14)
 
     return fig, ax
+
 
 # Helper functions for label conversion from warp-ctc to tf-ctc format:-(
 def target_converter(bY, b_lenY):

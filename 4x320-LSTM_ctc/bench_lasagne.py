@@ -1,11 +1,12 @@
-import lasagne
-from support import toy_batch_ctc, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import theano.tensor as T
-import theano
-import matplotlib.pyplot as plt
 import os
+from timeit import default_timer as timer
+
 import ctc
+import lasagne
+import theano
+import theano.tensor as T
+
+from support import toy_batch_ctc, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'lasagne'
@@ -102,7 +103,7 @@ for i in range(epochs):
     train_loss = train_fn(bX, b_lenX, maskX, bY, b_lenY)
     end = timer()
     time.append(end - start)
-    output=output_fn(bX, maskX)
+    output = output_fn(bX, maskX)
     assert (output.shape == (seq_len, batch_size, classes))
 
 write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,

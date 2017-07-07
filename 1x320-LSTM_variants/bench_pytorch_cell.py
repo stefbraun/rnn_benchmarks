@@ -1,14 +1,14 @@
+import os
+from timeit import default_timer as timer
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from support import toy_batch, default_params, write_results, print_results, plot_results
-from timeit import default_timer as timer
-import numpy as np
-import matplotlib.pyplot as plt
-import torch.optim as optim
-import os
 import torch.nn.functional as F
-import editdistance
+import torch.optim as optim
+from torch.autograd import Variable
+
+from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
 framework = 'pytorch_LSTMCell'
@@ -31,15 +31,14 @@ bY = Variable(torch.from_numpy(bY).cuda())
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.lstm = nn.LSTMCell(input_size=inp_dims,hidden_size=rnn_size, bias=True)
+        self.lstm = nn.LSTMCell(input_size=inp_dims, hidden_size=rnn_size, bias=True)
         self.fc = nn.Linear(rnn_size, classes, bias=True)
 
-
     def forward(self, x):
-        max_len, batch_size, features =x.size()
+        max_len, batch_size, features = x.size()
         h_lstm = Variable(torch.zeros(batch_size, rnn_size)).cuda()
         c_lstm = Variable(torch.zeros(batch_size, rnn_size)).cuda()
-        output=[]
+        output = []
         for i in range(max_len):
             h_lstm, c_lstm = self.lstm(x[i], (h_lstm, c_lstm))
             output.append(h_lstm)
@@ -82,7 +81,8 @@ for i in range(epochs):
     output_numpy = output.cpu().data.numpy()
     assert (output_numpy.shape == (batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params, run_time=time)
+write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
+              run_time=time)
 print_results(time)
 
 # Plot results

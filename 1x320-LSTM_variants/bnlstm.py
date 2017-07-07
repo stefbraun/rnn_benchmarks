@@ -6,7 +6,6 @@ from torch.nn import functional, init
 
 
 class SeparatedBatchNorm1d(nn.Module):
-
     """
     A batch normalization module which keeps its running mean
     and variance separately per timestep.
@@ -71,7 +70,6 @@ class SeparatedBatchNorm1d(nn.Module):
 
 
 class LSTMCell(nn.Module):
-
     """A basic LSTM cell."""
 
     def __init__(self, input_size, hidden_size, use_bias=True):
@@ -126,7 +124,7 @@ class LSTMCell(nn.Module):
         wi = torch.mm(input_, self.weight_ih)
         f, i, o, g = torch.split(wh_b + wi,
                                  split_size=self.hidden_size, dim=1)
-        c_1 = torch.sigmoid(f)*c_0 + torch.sigmoid(i)*torch.tanh(g)
+        c_1 = torch.sigmoid(f) * c_0 + torch.sigmoid(i) * torch.tanh(g)
         h_1 = torch.sigmoid(o) * torch.tanh(c_1)
         return h_1, c_1
 
@@ -136,7 +134,6 @@ class LSTMCell(nn.Module):
 
 
 class BNLSTMCell(nn.Module):
-
     """A BN-LSTM cell."""
 
     def __init__(self, input_size, hidden_size, max_length, use_bias=True):
@@ -211,13 +208,12 @@ class BNLSTMCell(nn.Module):
         bn_wi = self.bn_ih(wi, time=time)
         f, i, o, g = torch.split(bn_wh + bn_wi + bias_batch,
                                  split_size=self.hidden_size, dim=1)
-        c_1 = torch.sigmoid(f)*c_0 + torch.sigmoid(i)*torch.tanh(g)
+        c_1 = torch.sigmoid(f) * c_0 + torch.sigmoid(i) * torch.tanh(g)
         h_1 = torch.sigmoid(o) * torch.tanh(self.bn_c(c_1, time=time))
         return h_1, c_1
 
 
 class LSTM(nn.Module):
-
     """A module that runs multiple steps of LSTM."""
 
     def __init__(self, cell_class, input_size, hidden_size, num_layers=1,
@@ -256,8 +252,8 @@ class LSTM(nn.Module):
             else:
                 h_next, c_next = cell(input_=input_[time], hx=hx)
             mask = (time < length).float().unsqueeze(1).expand_as(h_next)
-            h_next = h_next*mask + hx[0]*(1 - mask)
-            c_next = c_next*mask + hx[1]*(1 - mask)
+            h_next = h_next * mask + hx[0] * (1 - mask)
+            c_next = c_next * mask + hx[1] * (1 - mask)
             hx_next = (h_next, c_next)
             output.append(h_next)
             hx = hx_next

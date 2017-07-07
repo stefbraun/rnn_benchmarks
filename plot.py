@@ -12,6 +12,6 @@ fig, ax = bar_chart(title='4x320 bidir LSTM network with CTC loss', selection=[7
 # fig.savefig("results/bars.pdf", bbox_inches='tight')
 fig.savefig("results/bars/bars_4x320LSTM_ctc.png", bbox_inches='tight')
 
-fig, ax = bar_chart(title='1x320 LSTM network with with cross entropy loss', selection=[10, 11, 12, 13, 14])
+fig, ax = bar_chart(title='1x320 LSTM network with with cross entropy loss', selection=[10, 11, 12, 13, 14, 15, 16, 17])
 # fig.savefig("results/bars.pdf", bbox_inches='tight')
 fig.savefig("results/bars/bars_1x320LSTM_ce.png", bbox_inches='tight')
