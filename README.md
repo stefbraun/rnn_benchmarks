@@ -46,7 +46,7 @@ We train for 500 epochs and report the median of the runtimes per epoch in [sec]
   3. L1-L4: 4x320 bidir LSTM, L5: 59 Dense, ~8.5M params, CTC loss, masking
   
   
-  | Network              | Loss          | Masking | Lasagne    | Tensorflow <br> LSTMCell|Tensorflow <br> LSTMBlockCell| PyTorch<br>cudnn<br>LSTM | PyTorch<br>LSTMCell| Pytorch<br>Custom<br>LSTMCell|Keras <br> LSTM <br> theano | Keras <br> LSTM <br> tensorflow
+  | Network              | Loss          | Masking | Lasagne    | Tensorflow <br> LSTMCell|Tensorflow <br> LSTMBlockCell| PyTorch<br>cudnn<br>LSTM | PyTorch<br>LSTMCell| Pytorch<br>Custom<br>LSTMCell|Keras <br> LSTM <br> w/ theano | Keras <br> LSTM <br> w/ tensorflow
   |----------------------|---------------|----|----------|----------|----------|----------|----------|----------|----------|-----|
   | 1x320 unidir LSTM (4)| Cross-Entropy | No | 0.40 sec | 0.59 sec | 0.52 sec | 0.18 sec | 0.44 sec | 1.16 sec | 0.72 sec | 0.83 sec|
   
