@@ -5,8 +5,12 @@ Welcome to the rnn_benchmarks repository! We offer:
 
 ## Dependencies
   - [Tensorflow-1.2](https://github.com/tensorflow/tensorflow/tree/v1.2.0)
-  - [Pytorch-0.1.12+1572173](https://github.com/pytorch/pytorch/tree/1572173ca735f379794d0ac10412208bbc0605b3), [warp-ctc with pytorch binding](https://github.com/SeanNaren/warp-ctc/tree/pytorch_bindings/pytorch_binding)
-  - [Theano-0.9](https://github.com/Theano/Theano/releases/tag/rel-0.9.0), [Lasagne (latest)](https://github.com/Lasagne/Lasagne), [warp-ctc with theano binding](https://github.com/sherjilozair/ctc)
+  - [Pytorch-0.1.12+1572173](https://github.com/pytorch/pytorch/tree/1572173ca735f379794d0ac10412208bbc0605b3)
+  - [warp-ctc with pytorch binding](https://github.com/SeanNaren/warp-ctc/tree/pytorch_bindings/pytorch_binding)
+  - [Theano-0.9](https://github.com/Theano/Theano/releases/tag/rel-0.9.0)
+  - [warp-ctc with theano binding](https://github.com/sherjilozair/ctc)
+  - [Lasagne (latest)](https://github.com/Lasagne/Lasagne),
+  - [Keras-2.0.5](https://github.com/fchollet/keras/releases/tag/2.0.5)
 
 ## Run the benchmarks
 Go to the script 'main.py'. Before running, you need to give the paths to the python environment that contain the corresponding framework. The measured execution times will be written to 'results/results.csv'. 
@@ -41,9 +45,11 @@ We train for 500 epochs and report the median of the runtimes per epoch in [sec]
   2. L1-L4: 4x320 bidir LSTM, L5: 15 Dense, ~8.5M params, cross entropy loss, no masking
   3. L1-L4: 4x320 bidir LSTM, L5: 59 Dense, ~8.5M params, CTC loss, masking
   
-  | Network              | Loss          | Masking | Lasagne    | Tensorflow  | PyTorch<br>cudnn<br>LSTM | PyTorch<br>LSTMCell| Pytorch<br>Custom<br>LSTMCell|
-  |----------------------|---------------|---------|------------|-------------|----------------|-----------------|---------|
-  | 1x320 unidir LSTM (4)| Cross-Entropy | No      | 0.40 sec   | 0.59 sec    | 0.18 sec       | 0.44 sec        | 1.16 sec|
+  
+  | Network              | Loss          | Masking | Lasagne    | Tensorflow <br> LSTMCell|Tensorflow <br> LSTMBlockCell| PyTorch<br>cudnn<br>LSTM | PyTorch<br>LSTMCell| Pytorch<br>Custom<br>LSTMCell|Keras <br> LSTM <br> backend theano | Keras <br> LSTM <br> backend tensorflow
+  |----------------------|---------------|----|----------|----------|----------|----------|----------|----------|----------|-----|
+  | 1x320 unidir LSTM (4)| Cross-Entropy | No | 0.40 sec | 0.59 sec | 0.52 sec | 0.18 sec | 0.44 sec | 1.16 sec | 0.72 sec | 0.83 sec|
+  
   
   4. L1: 1x320 LSTM, L2: 25 Dense, ~578K params, cross entropy loss, no masking. See documentation: [PyTorch cudnn LSTM](http://pytorch.org/docs/nn.html#lstm), [PyTorch LSTMCell](http://pytorch.org/docs/nn.html#lstmcell), [PyTorch Custom LSTMCell](https://github.com/jihunchoi/recurrent-batch-normalization-pytorch/blob/master/bnlstm.py)
 
