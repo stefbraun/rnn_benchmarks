@@ -11,7 +11,7 @@ from torch.autograd import Variable
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-bench = 'pytorch_LSTMCell'
+bench = 'pytorch_fused-LSTMCell'
 version = torch.__version__
 experiment = '1x320-LSTM_cross-entropy'
 

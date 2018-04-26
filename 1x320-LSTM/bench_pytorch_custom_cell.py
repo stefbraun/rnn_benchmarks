@@ -8,11 +8,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
-import bnlstm as bl
+import lib_pytorchLSTM as libLSTM
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-bench = 'pytorch_custom-LSTMcell'
+bench = 'pytorch_naive-LSTMcell'
 version = torch.__version__
 experiment = '1x320-LSTM_cross-entropy'
 
@@ -28,7 +28,7 @@ bX = np.transpose(bX, (1, 0, 2))
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.lstm = bl.LSTMCell(input_size=inp_dims, hidden_size=rnn_size, use_bias=True)
+        self.lstm = libLSTM.LSTMCell(input_size=inp_dims, hidden_size=rnn_size, bias=True)
         self.fc = nn.Linear(rnn_size, classes, bias=True)
 
     def forward(self, x):
@@ -90,6 +90,6 @@ for i in range(batches):
     assert (output_numpy.shape == (batch_size, classes))
 
 # Write results
+print_results(time)
 write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
               run_time=time, version=version)
-print_results(time)
