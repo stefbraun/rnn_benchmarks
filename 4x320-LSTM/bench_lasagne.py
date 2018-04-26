@@ -1,5 +1,5 @@
 import os
-from timeit import default_timer as timer
+import time as timer
 
 import lasagne
 import theano
@@ -8,13 +8,14 @@ import theano.tensor as T
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'lasagne'
-experiment = '4x320LSTM'
+bench = 'lasagne_default-LSTM'
+version = lasagne.__version__
+experiment = '4x320-BIDIR-LSTM_cross-entropy'
 
 # Get data
 bX, b_lenX, bY, classes = toy_batch()
 batch_size, seq_len, inp_dims = bX.shape
-rnn_size, learning_rate, epochs = default_params()
+rnn_size, learning_rate, batches = default_params()
 
 # Create symbolic vars
 x = T.ftensor3('x')
@@ -47,7 +48,7 @@ def get_bench_net_lstm(input_var, inp_dim, rnn_size):
     h4 = lasagne.layers.ConcatLayer([h4f, h4b], axis=2)
 
     h5 = lasagne.layers.SliceLayer(h4, -1, axis=1)
-    h6 = lasagne.layers.DenseLayer(h5, num_units=classes, nonlinearity=lasagne.nonlinearities.rectify)
+    h6 = lasagne.layers.DenseLayer(h5, num_units=classes, nonlinearity=lasagne.nonlinearities.linear)
 
     return h6
 
@@ -74,18 +75,16 @@ print('# network parameters: ' + str(params))
 
 # Start training
 time = []
-for i in range(epochs):
-    print('Epoch {}/{}'.format(i, epochs))
-    start = timer()
+for i in range(batches):
+    print('Batch {}/{}'.format(i, batches))
+    start = timer.perf_counter()
     train_loss = train_fn(bX, bY)
-    end = timer()
+    end = timer.perf_counter()
     time.append(end - start)
     output = output_fn(bX)
     assert (output.shape == (batch_size, classes))
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
-              run_time=time)
-print_results(time)
 
-# Plot results
-fig, ax = plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')
+# Write results
+write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
+              run_time=time, version=version)
+print_results(time)

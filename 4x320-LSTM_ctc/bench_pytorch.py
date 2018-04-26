@@ -1,5 +1,5 @@
 import os
-from timeit import default_timer as timer
+import time as timer
 
 import numpy as np
 import torch
@@ -12,25 +12,17 @@ from warpctc_pytorch import CTCLoss
 from support import toy_batch_ctc, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'pytorch'
-experiment = '4x320LSTM_CTC'
+bench = 'pytorch_cudnnLSTM'
+version = torch.__version__
+experiment = '4x320-BIDIR-LSTM_CTC'
 
 # Get data
 bX, b_lenX, maskX, bY, b_lenY, classes = toy_batch_ctc()
 batch_size, seq_len, inp_dims = bX.shape
-rnn_size, learning_rate, epochs = default_params()
+rnn_size, learning_rate, batches = default_params()
 
 # PyTorch compatibility: time first, batch second
 bX = np.transpose(bX, (1, 0, 2))
-
-# Create symbolic vars
-bX = Variable(torch.from_numpy(bX).cuda())
-bX = pack_padded_sequence(bX, b_lenX[::-1])  # Pack those sequences for masking, plz
-b_lenX = Variable(torch.from_numpy(b_lenX))
-
-bY = Variable(torch.from_numpy(bY))
-b_lenY = Variable(torch.from_numpy(b_lenY))
-
 
 # Create Network
 class Net(nn.Module):
@@ -41,11 +33,9 @@ class Net(nn.Module):
 
     def forward(self, x):
         h1p, state = self.lstm(x)
-        h3 = self.fc(h1p.data)
-        h3p = PackedSequence(h3[:, :], h1p.batch_sizes)
-        h4, lens = pad_packed_sequence(h3p)
-        h5 = h4.view(-1, batch_size, classes)
-        return h5
+        h1, lens = pad_packed_sequence(h1p)
+        h2 = self.fc(h1)
+        return h2
 
 
 net = Net()
@@ -62,29 +52,39 @@ print('# network parameters: ' + str(params))
 
 # Create optimizer
 optimizer = optim.Adam(net.parameters(), lr=learning_rate)
+criterion = CTCLoss()
+
+# Synchronize for more precise timing
+torch.cuda.synchronize()
 
 # Start training
 time = []
-for i in range(epochs):
-    print('Epoch {}/{}'.format(i, epochs))
-    start = timer()
+for i in range(batches):
+    print('Batch {}/{}'.format(i, batches))
+
+    torch.cuda.synchronize()
+    start = timer.perf_counter()
+
+    bXt = Variable(torch.from_numpy(bX).cuda())
+    bXt = pack_padded_sequence(bXt, b_lenX[::-1])  # Pack those sequences for masking, plz
+    b_lenXt = Variable(torch.from_numpy(b_lenX))
+    bYt = Variable(torch.from_numpy(bY))
+    b_lenYt = Variable(torch.from_numpy(b_lenY))
+
     optimizer.zero_grad()
-    output = net(bX)
-    criterion = CTCLoss()  # TODO move out of loop loss definition
-    loss = criterion(output, bY, b_lenX, b_lenY)
+    output = net(bXt)
+    loss = criterion(output, bYt, b_lenXt, b_lenYt)
     loss.backward()
     optimizer.step()
-    # Synchronize for more precise timing
+
     torch.cuda.synchronize()
-    end = timer()
+    end = timer.perf_counter()
     time.append(end - start)
+
     output_numpy = output.cpu().data.numpy()
     assert (output_numpy.shape == (seq_len, batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
-              run_time=time)
+# Write results
+write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
+              run_time=time, version=version)
 print_results(time)
-
-# Plot results
-fig, ax = plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

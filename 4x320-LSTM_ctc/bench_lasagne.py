@@ -1,29 +1,29 @@
 import os
-from timeit import default_timer as timer
+import time as timer
 
-import ctc
 import lasagne
 import theano
 import theano.tensor as T
+from theano.tensor.nnet.ctc import (ctc_available, ctc, ConnectionistTemporalClassification)
 
 from support import toy_batch_ctc, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'lasagne'
-experiment = '4x320LSTM_CTC'
+bench = 'lasagne_default-LSTM'
+version = lasagne.__version__
+experiment = '4x320-BIDIR-LSTM_CTC'
 
 # Get data
 bX, b_lenX, maskX, bY, b_lenY, classes = toy_batch_ctc()
+bY = bY.reshape(-1,b_lenY.max()) # compatibility with theano ctc interface
 batch_size, seq_len, inp_dims = bX.shape
-rnn_size, learning_rate, epochs = default_params()
+rnn_size, learning_rate, batches = default_params()
 
 # Create symbolic vars
 input_var = T.ftensor3('bX')
 input_var_lens = T.ivector('b_lenX')
 mask_var = T.matrix('maskX')
-target_var = T.ivector('bY')
-target_var_lens = T.ivector('b_lenY')
-
+target_var = T.imatrix('bY')
 
 # Create network
 def get_bench_net_lstm(input_var, mask_var, inp_dim, rnn_size, classes):
@@ -81,12 +81,12 @@ network = get_bench_net_lstm(input_var=input_var, mask_var=mask_var, inp_dim=inp
 
 # Create loss, optimizer and train function
 prediction = lasagne.layers.get_output(network)
-loss = T.mean(ctc.cpu_ctc_th(prediction, input_var_lens, target_var, target_var_lens))
+loss = T.mean(ctc(prediction, target_var, input_var_lens))
 
 params = lasagne.layers.get_all_params(network, trainable=True)
 updates = lasagne.updates.adam(loss, params, learning_rate=learning_rate)
 
-fn_inputs = [input_var, input_var_lens, mask_var, target_var, target_var_lens]
+fn_inputs = [input_var, input_var_lens, mask_var, target_var]
 train_fn = theano.function(fn_inputs, loss, updates=updates)
 output_fn = theano.function([input_var, mask_var], prediction)
 
@@ -96,20 +96,17 @@ print('# network parameters: ' + str(params))
 
 # Start training
 time = []
-for i in range(epochs):
-    print('Epoch {}/{}'.format(i, epochs))
+for i in range(batches):
+    print('Batch {}/{}'.format(i, batches))
 
-    start = timer()
-    train_loss = train_fn(bX, b_lenX, maskX, bY, b_lenY)
-    end = timer()
+    start = timer.perf_counter()
+    train_loss = train_fn(bX, b_lenX, maskX, bY)
+    end = timer.perf_counter()
     time.append(end - start)
     output = output_fn(bX, maskX)
     assert (output.shape == (seq_len, batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
-              run_time=time)
+# Write results
+write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
+              run_time=time, version=version)
 print_results(time)
-
-# Plot results
-fig, ax = plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

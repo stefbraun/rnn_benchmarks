@@ -1,5 +1,5 @@
 import os
-from timeit import default_timer as timer
+import time as timer
 
 import numpy as np
 import torch
@@ -11,21 +11,17 @@ from torch.autograd import Variable
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'pytorch_cudnn_LSTM'
-experiment = '1x320LSTM'
+bench = 'pytorch_cudnnLSTM'
+version = torch.__version__
+experiment = '1x320-LSTM_cross-entropy'
 
 # Get data
 bX, b_lenX, bY, classes = toy_batch()
 batch_size, seq_len, inp_dims = bX.shape
-rnn_size, learning_rate, epochs = default_params()
+rnn_size, learning_rate, batches = default_params()
 
 # PyTorch compatibility: time first, batch second
 bX = np.transpose(bX, (1, 0, 2))
-
-# Create symbolic vars
-bX = Variable(torch.from_numpy(bX).cuda())
-bY = Variable(torch.from_numpy(bY).cuda())
-
 
 # Create Network
 class Net(nn.Module):
@@ -37,7 +33,7 @@ class Net(nn.Module):
     def forward(self, x):
         h1, state = self.lstm(x)
         h2 = h1[-1, :, :]
-        h3 = F.relu(self.fc(h2))
+        h3 = self.fc(h2)
         return h3
 
 
@@ -55,29 +51,38 @@ print('# network parameters: ' + str(params))
 
 # Create optimizer
 optimizer = optim.Adam(net.parameters(), lr=learning_rate)
+criterion = nn.CrossEntropyLoss()  # loss definition
+
+# Synchronize for more precise timing
+torch.cuda.synchronize()
 
 # Start training
 time = []
 ed = []
-for i in range(epochs):
-    print('Epoch {}/{}'.format(i, epochs))
-    start = timer()
+for i in range(batches):
+    print('Batch {}/{}'.format(i, batches))
+
+    torch.cuda.synchronize()
+    start = timer.perf_counter()
+
+    bXt = Variable(torch.from_numpy(bX).cuda())
+    bYt = Variable(torch.from_numpy(bY).cuda())
+
     optimizer.zero_grad()
-    output = net(bX)
-    criterion = nn.CrossEntropyLoss()  # loss definition
-    loss = criterion(output, bY.long())
+    output = net(bXt)
+    loss = criterion(output, bYt.long())
     loss.backward()
     optimizer.step()
+
     torch.cuda.synchronize()
-    end = timer()
+    end = timer.perf_counter()
     time.append(end - start)
+
     output_numpy = output.cpu().data.numpy()
     assert (output_numpy.shape == (batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
-              run_time=time)
+# Write results
+write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
+              run_time=time, version=version)
 print_results(time)
 
-# Plot results
-fig, ax = plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

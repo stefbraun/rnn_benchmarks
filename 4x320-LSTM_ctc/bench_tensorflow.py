@@ -1,24 +1,28 @@
 import os
-from timeit import default_timer as timer
-
+import time as timer
 import tensorflow as tf
 
 from support import toy_batch_ctc, default_params, write_results, print_results, plot_results, target_converter, \
     sparse_tuple_from
 
 # Experiment_type
-framework = 'tensorflow'
-experiment = '4x320LSTM_CTC'
+bench = 'tensorflow_LSTMCell'
+version=tf.__version__
+experiment = '4x320-BIDIR-LSTM_CTC'
 
 # Get data
 bX, b_lenX, maskX, bY, b_lenY, classes = toy_batch_ctc()
 batch_size, seq_len, inp_dims = bX.shape
-rnn_size, learning_rate, epochs = default_params()
+rnn_size, learning_rate, batches = default_params()
 
 # Create symbolic vars
 x = tf.placeholder(tf.float32, [None, None, inp_dims])
 x_len = tf.placeholder(tf.int32, [None])
-y = tf.sparse_placeholder(tf.int32, [None])
+y = tf.sparse_placeholder(tf.int32)
+
+print(bX.shape)
+print(b_lenX.shape)
+print(bY.shape)
 
 weights = {'out': tf.Variable(tf.truncated_normal(shape=[2 * rnn_size, classes], stddev=0.1), name='W_out')}
 biases = {'out': tf.Variable(tf.zeros([classes]), name='b_out')}
@@ -56,7 +60,7 @@ train_step = optimizer.minimize(loss)
 # Initialize session
 init = tf.global_variables_initializer()
 config = tf.ConfigProto()
-config.gpu_options.allow_growth = False
+config.gpu_options.allow_growth = True
 
 # Print parameter count
 params = 0
@@ -77,19 +81,16 @@ with tf.Session(config=config) as sess:
     bY = target_converter(bY, b_lenY)
     bY = sparse_tuple_from(bY)
 
-    for i in range(epochs):
-        print('Epoch {}/{}'.format(i, epochs))
+    for i in range(batches):
+        print('Batch {}/{}'.format(i, batches))
 
-        start = timer()
+        start = timer.perf_counter()
         _, output = sess.run([train_step, pred], feed_dict={x: bX, y: bY, x_len: b_lenX})
-        end = timer()
+        end = timer.perf_counter()
         time.append(end - start)
         assert (output.shape == (seq_len, batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
-              run_time=time)
+# Write results
+write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
+              run_time=time, version=version)
 print_results(time)
-
-# Plot results
-fig, ax = plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')

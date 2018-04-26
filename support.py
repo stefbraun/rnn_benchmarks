@@ -4,8 +4,10 @@ import os.path
 import matplotlib.pyplot as plt
 import numpy as np
 
+import pandas as pd
+from collections import OrderedDict
 
-def toy_batch(seed=11, shape=(25, 1000, 123), classes=25):
+def toy_batch(seed=11, shape=(25, 1000, 123), classes=20):
     batch_size, max_len, features = shape
     np.random.seed(seed)
 
@@ -42,26 +44,44 @@ def toy_batch_ctc(seed=11, shape=(25, 1000, 123), classes=59):
 def default_params():
     rnn_size = 320
     learning_rate = 1e-3
-    epochs = 500
-    return rnn_size, learning_rate, epochs
+    batches = 1000
+    return rnn_size, learning_rate, batches
 
 
-def write_results(script_name, framework, experiment, parameters, run_time):
-    logfile = '/media/stefbraun/ext4/Dropbox/repos/rnn_benchmarks/results/results.csv'
-    # Write first line if logfile doesn't exits
+def write_results(script_name, bench, experiment, parameters, run_time, version=None):
+
+    # Get path
+    repo_path = os.path.dirname(os.path.realpath(__file__))
+
+    with open(os.path.join(repo_path, 'results', 'conf')) as f:
+        mode = f.readline().strip()
+
+    logfile = os.path.join(repo_path, 'results', mode, 'results.csv')
+
+    # Prepare header
     if os.path.isfile(logfile) == False:
-        with open(logfile, 'a') as f:
-            c = csv.writer(f)
-            c.writerow(
-                ['Name', 'Framework', 'Experiment', 'Parameters', 'Min', 'Max', 'Mean', 'Std', 'Median'])
+        df=pd.DataFrame(index=None, columns=['name', 'bench', 'version','experiment', 'parameters', 'runtime'])
+        df.to_csv(logfile, index=None)
 
-    # Write data
-    with open(logfile, 'a') as f:
-        c = csv.writer(f)
-        c.writerow([script_name, framework, experiment, parameters, np.min(run_time),
-                    np.max(run_time), np.mean(run_time),
-                    np.std(run_time), np.median(run_time)])
+    # Prepare new results
+    row_list=[]
+    for rt in run_time:
+        row=OrderedDict()
+        row['experiment'] = experiment
+        row['bench'] = bench
+        row['version'] = version
+        row['name'] = script_name
+        row['parameters'] = parameters
+        row['runtime'] = rt
 
+        row_list.append(row)
+
+    dfa= pd.DataFrame.from_dict(row_list)
+
+    # Append new results
+    df = pd.read_csv(logfile)
+    df=df.append(dfa)
+    df.to_csv(logfile, index=None)
 
 def print_results(run_time):
     print(
@@ -74,66 +94,8 @@ def plot_results(time):
     fig, ax = plt.subplots()
     ax.scatter(range(len(time)), time)
     ax.grid()
-    ax.set_xlabel('Epoch #')
-    ax.set_ylabel('Time per epoch [sec]')
-    return fig, ax
-
-
-def bar_chart(logfile='results/results_980ti.csv', category='Median', selection=[1, 2, 3], title='Time per epoch'):
-    cat_dict = dict()
-    cat = 0
-    with open(logfile, 'rt') as f:
-        f = csv.reader(f)
-        experiments = []
-        for idx, row in enumerate(f):
-            if idx == 0:
-                cats = row
-            elif idx in selection:
-                experiments.append(row)
-    if len(selection) > 5:
-        fig_width = 8 + 1.3 * len(selection) - 5
-    else:
-        fig_width = 8
-    fig, ax = plt.subplots(figsize=(fig_width, 4.5))
-    ind = np.arange(len(selection))
-    width = 0.3
-    x_labels = []
-    y_bar = []
-    for row in experiments:
-        # X-axis
-        cat_idx = cats.index('Framework')
-        cat_name = row[cat_idx]
-        x_labels.append(cat_name)
-
-        # Y-axis
-        y_idx = cats.index('Median')
-        y_val = row[y_idx]
-        y_bar.append(y_val)
-
-    color_list = []
-    processed_x_lables = []
-    for label in x_labels:
-        if 'tensorflow' in label:
-            color_list.append('red')
-        elif 'pytorch' in label:
-            color_list.append('green')
-        elif 'lasagne' in label:
-            color_list.append('blue')
-        else:
-            color_list.append('deepskyblue')
-        processed_x_lables.append('\n'.join(label.split('_')))
-
-    color = ['red', 'green', 'blue']
-    ax.bar(ind, y_bar, width=width, color=color_list)
-    plt.grid()
-    ax.tick_params(axis='y', labelsize=14)
-    ax.set_ylabel('{} time per epoch [sec]'.format(category), fontsize=14)
-    ax.set_xticks(ind)
-
-    ax.set_xticklabels(processed_x_lables, rotation=0, fontsize=14)
-
-    ax.set_title(title, fontsize=14)
-
+    ax.set_xlabel('Batch #')
+    ax.set_ylabel('Time per Batch [sec]')
     return fig, ax
 
 
@@ -155,7 +117,7 @@ def sparse_tuple_from(sequences, dtype=np.int32):
     values = []
 
     for n, seq in enumerate(sequences):
-        indices.extend(zip([n] * len(seq), xrange(len(seq))))
+        indices.extend(zip([n] * len(seq), range(len(seq))))
         values.extend(seq)
 
     indices = np.asarray(indices, dtype=np.int64)

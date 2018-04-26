@@ -1,18 +1,19 @@
 import os
-from timeit import default_timer as timer
+import time as timer
 
 import tensorflow as tf
 
 from support import toy_batch, default_params, write_results, print_results, plot_results
 
 # Experiment_type
-framework = 'tensorflow_LSTMCell'
-experiment = '1x320LSTM'
+bench = 'tensorflow_LSTMBlockCell'
+version=tf.__version__
+experiment = '1x320-LSTM_cross-entropy'
 
 # Get data
 bX, b_lenX, bY, classes = toy_batch()
 batch_size, max_len, inp_dims = bX.shape
-rnn_size, learning_rate, epochs = default_params()
+rnn_size, learning_rate, batches = default_params()
 
 # Create symbolic vars
 x = tf.placeholder(tf.float32, [None, None, inp_dims])
@@ -20,11 +21,11 @@ seq_len = tf.placeholder(tf.int32, [None])
 y = tf.placeholder(tf.int32, [None])
 
 # Create network
-fw_cell = tf.nn.rnn_cell.LSTMCell(rnn_size)
+fw_cell = tf.contrib.rnn.LSTMBlockCell(rnn_size)
 
 h1, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
 h2 = h1[:, -1, :]
-h3 = tf.layers.dense(h2, units=classes, activation=tf.nn.relu)
+h3 = tf.layers.dense(h2, units=classes, activation=None)
 
 # Create loss, optimizer and train function
 loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=h3, labels=y))
@@ -36,7 +37,6 @@ train_step = optimizer.minimize(loss)
 init = tf.global_variables_initializer()
 config = tf.ConfigProto()
 # config.gpu_options.allow_growth = False  # dynamic allocation of VRAM
-config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
 # Print parameter count
 params = 0
@@ -53,18 +53,15 @@ print('# network parameters: ' + str(params))
 with tf.Session(config=config) as sess:
     sess.run(init)
     time = []
-    for i in range(epochs):
-        print('Epoch {}/{}'.format(i, epochs))
-        start = timer()
+    for i in range(batches):
+        print('Batch {}/{}'.format(i, batches))
+        start = timer.perf_counter()
         _, output = sess.run([train_step, h3], feed_dict={x: bX, y: bY, seq_len: b_lenX})
-        end = timer()
+        end = timer.perf_counter()
         time.append(end - start)
         assert (output.shape == (batch_size, classes))
 
-write_results(script_name=os.path.basename(__file__), framework=framework, experiment=experiment, parameters=params,
-              run_time=time)
+# Write results
+write_results(script_name=os.path.basename(__file__), bench=bench, experiment=experiment, parameters=params,
+              run_time=time, version=version)
 print_results(time)
-
-# Plot results
-fig, ax = plot_results(time)
-fig.savefig('{}_{}.pdf'.format(framework, experiment), bbox_inches='tight')
