@@ -1,9 +1,11 @@
 "copied together from pytorch/nn/modules/rnn.py, pytorch/nn/_functions/rnn.py"
 
-import torch
-from torch.nn import Parameter
 import math
+
+import torch
 import torch.nn.functional as F
+from torch.nn import Parameter
+
 
 class RNNCellBase(torch.nn.Module):
 
@@ -31,6 +33,7 @@ class RNNCellBase(torch.nn.Module):
             raise RuntimeError(
                 "hidden{} has inconsistent hidden_size: got {}, expected {}".format(
                     hidden_label, hx.size(1), self.hidden_size))
+
 
 class LSTMCell(RNNCellBase):
     r"""A long short-term memory (LSTM) cell.

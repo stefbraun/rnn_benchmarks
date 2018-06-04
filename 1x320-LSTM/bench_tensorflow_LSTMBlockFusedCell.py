@@ -1,12 +1,13 @@
 import os
 import time as timer
 
+import numpy as np
 import tensorflow as tf
 
 from support import toy_batch, default_params, write_results, print_results, check_results
 
 # Experiment_type
-bench = 'tensorflow_LSTMCell'
+bench = 'tensorflow_LSTMBlockFusedCell'
 version = tf.__version__
 experiment = '1x320-LSTM_cross-entropy'
 
@@ -20,10 +21,13 @@ x = tf.placeholder(tf.float32, [None, None, inp_dims])
 seq_len = tf.placeholder(tf.int32, [None])
 y = tf.placeholder(tf.int32, [None])
 
+# fusedcell compatibility: time first, batch second
+bX = np.transpose(bX, (1, 0, 2))
+
 # Create network
-fw_cell = tf.nn.rnn_cell.LSTMCell(rnn_size)
-h1, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
-h2 = h1[:, -1, :]
+fw_cell = tf.contrib.rnn.LSTMBlockFusedCell(rnn_size)
+h1, _ = fw_cell(x, sequence_length=seq_len, dtype=tf.float32)
+h2 = h1[-1, :, :]
 h3 = tf.layers.dense(h2, units=classes, activation=None, use_bias=False)
 
 # Create loss, optimizer and train function

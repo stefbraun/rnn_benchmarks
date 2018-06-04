@@ -1,12 +1,13 @@
 import os
 import time as timer
 
+import numpy as np
 import tensorflow as tf
 
 from support import toy_batch, default_params, write_results, print_results, check_results
 
 # Experiment_type
-bench = 'tensorflow_LSTMCell'
+bench = 'tensorflow_cudnnLSTM'
 version = tf.__version__
 experiment = '1x320-LSTM_cross-entropy'
 
@@ -15,20 +16,24 @@ bX, b_lenX, bY, classes = toy_batch()
 batch_size, max_len, inp_dims = bX.shape
 rnn_size, learning_rate, batches = default_params()
 
+# cudnn compatibility: time first, batch second
+bX = np.transpose(bX, (1, 0, 2))
+
 # Create symbolic vars
 x = tf.placeholder(tf.float32, [None, None, inp_dims])
 seq_len = tf.placeholder(tf.int32, [None])
 y = tf.placeholder(tf.int32, [None])
 
 # Create network
-fw_cell = tf.nn.rnn_cell.LSTMCell(rnn_size)
-h1, _ = tf.nn.dynamic_rnn(cell=fw_cell, inputs=x, sequence_length=seq_len, dtype=tf.float32)
-h2 = h1[:, -1, :]
+cudnn_lstm = tf.contrib.cudnn_rnn.CudnnLSTM(num_layers=1, num_units=rnn_size)
+h1, _ = cudnn_lstm(x)
+h2 = h1[-1, :, :]
 h3 = tf.layers.dense(h2, units=classes, activation=None, use_bias=False)
 
 # Create loss, optimizer and train function
 loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=h3, labels=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+
 train_step = optimizer.minimize(loss)
 
 # Initialize session
@@ -40,11 +45,19 @@ config = tf.ConfigProto()
 params = 0
 for variable in tf.trainable_variables():
     # shape is an array of tf.Dimension
-    shape = variable.get_shape()
-    variable_parameters = 1
-    for dim in shape:
-        variable_parameters *= dim.value
-    params += variable_parameters
+    if 'cudnn_lstm' in str(variable):
+        biases = cudnn_lstm.canonical_bias_shapes
+        weights = cudnn_lstm.canonical_weight_shapes
+        all_biases = np.sum(biases)
+        all_weights = np.sum([t[0] * t[1] for t in weights])
+        params += all_biases
+        params += all_weights
+    else:
+        shape = variable.get_shape()
+        variable_parametes = 1
+        for dim in shape:
+            variable_parametes *= dim.value
+        params += variable_parametes
 print('# network parameters: ' + str(params))
 
 with tf.Session(config=config) as sess:
