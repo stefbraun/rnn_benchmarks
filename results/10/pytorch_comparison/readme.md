@@ -28,12 +28,12 @@ The loss functions are varied with the input data:
 2. Connectionist Temporal Classification (CTC) for variable sequence length data
     - warp_ctc for [PyTorch](https://github.com/SeanNaren/warp-ctc)
 
-Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Comment
+Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Benchmark scenario
 -|-|-|-|-|-|-|-
-1x320/CE-short | 1x320 unidirectional | 10 Dense | cross entropy | 64x100x123 | fixed [100] | 1 |  Real-world test<sup>2
-1x320/CE-long | 1x320 unidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic test
-4x320/CE-long | 4x320 bidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic test
-4x320/CTC-long | 4x320 bidirectional | 59 Dense | CTC| 32x1000x123 | variable [500..1000] | 100 |  Real-world test<sup>3
+1x320/CE-short | 1x320 unidirectional | 10 Dense | cross entropy | 64x100x123 | fixed [100] | 1 |  Real-world<sup>2
+1x320/CE-long | 1x320 unidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic
+4x320/CE-long | 4x320 bidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic
+4x320/CTC-long | 4x320 bidirectional | 59 Dense | CTC| 32x1000x123 | variable [500..1000] | 100 |  Real-world<sup>3
 <!--
 Loss | Input size [NxTxC]<sup>1 |  Sequence length |  Classes | Labels per sample | Comment
 -|-|-|-|-
