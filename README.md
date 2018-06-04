@@ -1,13 +1,14 @@
 # rnn_benchmarks
 Welcome to the rnn_benchmarks repository! We offer:
 - A training speed comparison of different LSTM implementations across deep learning frameworks
-- Common input sizes, network configurations and cost functions from continuous speech recognition and isolated speech recognition scenarios
-- Best-practice scripts on how to code up a network, optimizers, loss functions etc. when you are learning a new framework!
+- Common input sizes, network configurations and cost functions from automatic speech recognition
+- Best-practice scripts to learn coding up a network, optimizers, loss functions etc.
 
 ## Update June 4th 2018
  - arxiv paper release pending
  - [LSTM benchmarks between PyTorch 0.4, TensorFlow 1.8, Keras 2.1.6 and latest Lasagne](https://github.com/stefbraun/rnn_benchmarks/tree/master/results/10/framework_comparison)
  <img align="middle" src="https://github.com/stefbraun/rnn_benchmarks/blob/master/results/10/framework_comparison/1x320-LSTM_cross-entropy.png" width="500">
+ 
  - [LSTM benchmarks between PyTorch versions 0.1.12 to 0.4.0](https://github.com/stefbraun/rnn_benchmarks/tree/master/results/10/pytorch_comparison)
  <img align="middle" src="https://github.com/stefbraun/rnn_benchmarks/blob/master/results/10/pytorch_comparison/1x320-LSTM_cross-entropy.png" width="500">
 
