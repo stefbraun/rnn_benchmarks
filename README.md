@@ -1,6 +1,6 @@
 # rnn_benchmarks
 Welcome to the rnn_benchmarks repository! We offer:
-- A training speed comparison of differnt LSTM implementations across deep learning frameworks
+- A training speed comparison of different LSTM implementations across deep learning frameworks
 - Common input sizes, network configurations and cost functions from continuous speech recognition and isolated speech recognition scenarios
 - Best-practice scripts on how to code up a network, optimizers, loss functions etc. when you are learning a new framework!
 
