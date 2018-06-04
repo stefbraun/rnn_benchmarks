@@ -31,10 +31,10 @@ Keras | [`LSTM`](https://Keras.io/layers/recurrent/#lstm)| Pure Theano/TensorFlo
 ## Loss functions and input data
 The loss functions are varied with the input data:
 1. Cross-entropy for fixed sequence length data
-  - default implementation from each framework
+    - default implementation from each framework
 2. Connectionist Temporal Classification (CTC) for variable sequence length data
-  - warp_ctc for [Theano+Lasagne](http://deeplearning.net/software/Theano/library/tensor/nnet/ctc.html?highlight=ctc#module-Theano.tensor.nnet.ctc) and [PyTorch](https://github.com/SeanNaren/warp-ctc)
-  - TensorFlow default [CTC implementation](https://www.TensorFlow.org/api_docs/python/tf/nn/ctc_loss)
+    - warp_ctc for [Theano+Lasagne](http://deeplearning.net/software/Theano/library/tensor/nnet/ctc.html?highlight=ctc#module-Theano.tensor.nnet.ctc) and [PyTorch](https://github.com/SeanNaren/warp-ctc)
+    - TensorFlow default [CTC implementation](https://www.TensorFlow.org/api_docs/python/tf/nn/ctc_loss)
 
 
 Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Comment
