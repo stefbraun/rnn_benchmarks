@@ -10,7 +10,7 @@ Welcome to the rnn_benchmarks repository! We offer:
  - arxiv paper release pending
  - [LSTM benchmarks between PyTorch 0.4, TensorFlow 1.8, Keras 2.1.6 and latest Lasagne](https://github.com/stefbraun/rnn_benchmarks/tree/master/results/10/framework_comparison)
  ![alt text](https://github.com/stefbraun/rnn_benchmarks/blob/master/results/10/framework_comparison/1x320-LSTM_cross-entropy.png)
- - LSTM benchmarks between PyTorch versions 0.1.12, 0.2.0, 0.3.1, 0.4.0](https://github.com/stefbraun/rnn_benchmarks/tree/master/results/10/pytorch_comparison)
+ - [LSTM benchmarks between PyTorch versions 0.1.12 to 0.4.0](https://github.com/stefbraun/rnn_benchmarks/tree/master/results/10/pytorch_comparison)
  ![alt text](https://github.com/stefbraun/rnn_benchmarks/blob/master/results/10/pytorch_comparison/1x320-LSTM_cross-entropy.png)
 
 
