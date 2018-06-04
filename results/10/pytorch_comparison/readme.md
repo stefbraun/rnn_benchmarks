@@ -24,9 +24,9 @@ PyTorch |[`cuDNNLSTM`](http://PyTorch.org/docs/stable/nn.html?highlight=lstm#tor
 ## Loss functions and input data
 The loss functions are varied with the input data:
 1. Cross-entropy for fixed sequence length data
-  - default implementation from PyTorch
+    - default implementation from PyTorch
 2. Connectionist Temporal Classification (CTC) for variable sequence length data
-  - warp_ctc for [PyTorch](https://github.com/SeanNaren/warp-ctc)
+    - warp_ctc for [PyTorch](https://github.com/SeanNaren/warp-ctc)
 
 Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Comment
 -|-|-|-|-|-|-|-
