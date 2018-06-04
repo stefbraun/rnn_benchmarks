@@ -5,13 +5,13 @@
 - Input sizes 64x100x123 and 32x1000x123 (batch size x time steps x channels)
 - Network sizes 1x320 and 4x320 (number of layers x number of LSTM units)
 
-## Library versions
-| Library | Version | Release |Backend | cuda | cuDNN |
-|-|-|-|-|-|
-|PyTorch | 0.4.0 | [April 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.4.0) | - | 9.0 | 7102 |
-|TensorFlow | 1.8.0 | [April 2018](https://github.com/TensorFlow/TensorFlow/releases/tag/v1.8.0) |- | 9.0 | 7005 |
-| Lasagne | 0.2.1dev | [April 2018 ](https://github.com/Lasagne/Lasagne/commit/7992faa80fa5233a786e2582a605e854cea7d1cf) | [Theano 1.0.1](https://github.com/Theano/Theano/releases/tag/rel-1.0.1) | 9.0 | 7005
-|Keras | 2.1.6 | [April 2018](https://github.com/Keras-team/Keras/releases/tag/2.1.6) |[Theano 1.0.1](https://github.com/Theano/Theano/releases/tag/rel-1.0.1), [TensorFlow 1.8.0](https://github.com/TensorFlow/TensorFlow/releases/tag/v1.8.0)| 9.0 | 7005
+## Framework versions
+Framework | Version | Release |Backend | cuda | cuDNN
+-|-|-|-|-|-
+PyTorch | 0.4.0 | [April 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.4.0) | - | 9.0 | 7102
+TensorFlow | 1.8.0 | [April 2018](https://github.com/TensorFlow/TensorFlow/releases/tag/v1.8.0) |- | 9.0 | 7005 
+Lasagne | 0.2.1dev | [April 2018 ](https://github.com/Lasagne/Lasagne/commit/7992faa80fa5233a786e2582a605e854cea7d1cf) | [Theano 1.0.1](https://github.com/Theano/Theano/releases/tag/rel-1.0.1) | 9.0 | 7005
+Keras | 2.1.6 | [April 2018](https://github.com/Keras-team/Keras/releases/tag/2.1.6) |[Theano 1.0.1](https://github.com/Theano/Theano/releases/tag/rel-1.0.1), [TensorFlow 1.8.0](https://github.com/TensorFlow/TensorFlow/releases/tag/v1.8.0)| 9.0 | 7005
 
 ## LSTM implementations
 
@@ -38,7 +38,7 @@ The loss functions are varied with the input data:
 
 
 Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Comment
--|-|-|-|-|-|-|-|-|
+-|-|-|-|-|-|-|-
 1x320/CE-short | 1x320 unidirectional | 10 Dense | cross entropy | 64x100x123 | fixed [100] | 1 |  Real world test<br>Dimensions are similar to isolated digit recognition on the TIDIGITS dataset<sup>2</sup>
 1x320/CE-long | 1x320 unidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic test
 4x320/CE-long | 4x320 bidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic test
