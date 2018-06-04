@@ -6,12 +6,12 @@
 - Network sizes 1x320 and 4x320 (number of layers x number of LSTM units)
 
 ## Library versions
-| Library | Version | Release |Backend | cuda | cuDNN |
-|-|-|-|-|-|
-|PyTorch | 0.4.0 | [April 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.4.0) | - | 9.0 | 7102 |
-|PyTorch | 0.3.1post2 | [February 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.3.1) | - | 8.0 | 7005 |
-|PyTorch | 0.2.0_4 | [August 2017](https://github.com/PyTorch/PyTorch/releases/tag/v0.2.0) | - | 8.0 | 6021 |
-|PyTorch | 0.1.12_2 | [April 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.1.12) | - | 8.0 | 6021 |
+Library | Version | Release |Backend | cuda | cuDNN
+-|-|-|-|-|-
+PyTorch | 0.4.0 | [April 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.4.0) | - | 9.0 | 7102
+PyTorch | 0.3.1post2 | [February 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.3.1) | - | 8.0 | 7005
+PyTorch | 0.2.0_4 | [August 2017](https://github.com/PyTorch/PyTorch/releases/tag/v0.2.0) | - | 8.0 | 6021
+PyTorch | 0.1.12_2 | [April 2018](https://github.com/PyTorch/PyTorch/releases/tag/v0.1.12) | - | 8.0 | 6021
 
 ## LSTM implementations
 
@@ -28,10 +28,8 @@ The loss functions are varied with the input data:
 2. Connectionist Temporal Classification (CTC) for variable sequence length data
   - warp_ctc for [PyTorch](https://github.com/SeanNaren/warp-ctc)
 
-
-
 Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Comment
--|-|-|-|-|-|-|-|-|
+-|-|-|-|-|-|-|-
 1x320/CE-short | 1x320 unidirectional | 10 Dense | cross entropy | 64x100x123 | fixed [100] | 1 |  Real world test<br>Dimensions are similar to isolated digit recognition on the TIDIGITS dataset<sup>2</sup>
 1x320/CE-long | 1x320 unidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic test
 4x320/CE-long | 4x320 bidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed [1000] | 1 | Synthetic test
