@@ -17,13 +17,13 @@ Keras | 2.1.6 | [April 2018](https://github.com/Keras-team/Keras/releases/tag/2.
 
 Library | Name | Details
 -|-|-
-PyTorch | [`LSTMCell-basic`](https://github.com/stefbraun/rnn_benchmarks/blob/master/1x320-LSTM/lib_PyTorchLSTM.py) | Custom code, pure PyTorch implementation, easy to modify. Loop over time with Python `for` loop
+PyTorch | [`LSTMCell-basic`](https://github.com/stefbraun/rnn_benchmarks/blob/master/1x320-LSTM/bench_pytorch_LSTMCell-basic.py) | Custom code, pure PyTorch implementation, easy to modify. Loop over time with Python `for` loop
 PyTorch | [`LSTMCell-fused`](http://PyTorch.org/docs/stable/nn.html?highlight=lstmcell#torch.nn.LSTMCell) | LSTM with optimized kernel for single time steps. Loop over time with Python `for` loop
 PyTorch |[`cuDNNLSTM`](http://PyTorch.org/docs/stable/nn.html?highlight=lstm#torch.nn.LSTM) | Wrapper to cuDNN LSTM implementation
 TensorFlow | [`LSTMCell`](https://www.TensorFlow.org/versions/r1.8/api_docs/python/tf/contrib/rnn/LSTMCell)| Pure TensorFlow implementation, easy to modify. Loop over time with `tf.while_loop`. Uses `dynamic_rnn`
 TensorFlow | [`LSTMBlockCell`](https://www.TensorFlow.org/versions/r1.8/api_docs/python/tf/contrib/rnn/LSTMBlockCell)| Optimized LSTM with single operation per time-step. Loop over time with `tf.while_loop`. Uses `dynamic_rnn`
 TensorFlow | [`LSTMBlockFusedCell`](https://www.TensorFlow.org/versions/r1.8/api_docs/python/tf/contrib/rnn/LSTMBlockFusedCell)| Optimized LSTM with single operation over all time steps. Loop over time is part of the operation.
-TensorFlow | [`cuDNNLSTM`](https://www.TensorFlow.org/versions/r1.8/api_docs/python/tf/contrib/cuDNN_rnn/cuDNNLSTM)| Wrapper to cuDNN LSTM implementation
+TensorFlow | [`cuDNNLSTM`](https://www.tensorflow.org/api_docs/python/tf/contrib/cudnn_rnn/CudnnLSTM)| Wrapper to cuDNN LSTM implementation
 Lasagne | [`LSTMLayer`](http://Lasagne.readthedocs.io/en/latest/modules/layers/recurrent.html?highlight=gru#Lasagne.layers.LSTMLayer)| Pure Theano implementation, easy to modify. Loop over time with `theano.scan`
 Keras | [`cuDNNLSTM`](https://Keras.io/layers/recurrent/#cuDNNlstm) | Wrapper to cuDNN LSTM implementation
 Keras | [`LSTM`](https://Keras.io/layers/recurrent/#lstm)| Pure Theano/TensorFlow implementation, easy to modify. Loop over time with `theano.scan` or `tf.while_loop`
