@@ -37,7 +37,7 @@ The loss functions are varied with the input data:
     - TensorFlow default [CTC implementation](https://www.TensorFlow.org/api_docs/python/tf/nn/ctc_loss)
 
 
-Benchmark name | Layers x LSTM units | # Classes or output units | Loss | Inputsize [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Benchmark scenario
+Benchmark name | Layers x LSTM units | # Classes & output units | Loss | Input size [NxTxC] <sup>1</sup> | Sequence length | Labels per sample| Benchmark scenario
 -|-|-|-|-|-|-|-
 1x320/CE-short | 1x320 unidirectional | 10 Dense | cross entropy | 64x100x123 | fixed<br>[100] | 1 |  Real world<sup>2
 1x320/CE-long | 1x320 unidirectional | 10 Dense | cross entropy | 32x1000x123 | fixed<br>[1000] | 1 | Synthetic
@@ -57,7 +57,7 @@ dimensional filterbank features with 100fps, average sequence length of 98, alph
 si-284 (81h of speech): 123-dimensional filterbank features with 100fps, average sequence length 783, alphabet
 size of 59 characters and average number of characters per sample 102
 ## Results
-- Xeon-W 2195 CPU, GTX 1080 Founders Edition, Ubuntu 16.04
+- Xeon W-2195 CPU, GTX 1080 Founders Edition, Ubuntu 16.04
 - The results reflect the mean time to fully process a batch (forward + backward pass).
 - The measurements are taken over 500 runs, and the first 100 are discarded as warm-up.
 
