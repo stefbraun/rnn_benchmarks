@@ -17,7 +17,7 @@ PyTorch | 0.1.12_2 | [April 2018](https://github.com/PyTorch/PyTorch/releases/ta
 
 Library | Name | Details
 -|-|-
-PyTorch | [`LSTMCell-basic`](https://github.com/stefbraun/rnn_benchmarks/blob/master/1x320-LSTM/lib_PyTorchLSTM.py) | Custom code, pure PyTorch implementation, easy to modify. Loop over time with Python `for` loop
+PyTorch | [`LSTMCell-basic`](https://github.com/stefbraun/rnn_benchmarks/blob/master/1x320-LSTM/bench_pytorch_LSTMCell-basic.py) | Custom code, pure PyTorch implementation, easy to modify. Loop over time with Python `for` loop
 PyTorch | [`LSTMCell-fused`](http://PyTorch.org/docs/stable/nn.html?highlight=lstmcell#torch.nn.LSTMCell) | LSTM with optimized kernel for single time steps. Loop over time with Python `for` loop
 PyTorch |[`cuDNNLSTM`](http://PyTorch.org/docs/stable/nn.html?highlight=lstm#torch.nn.LSTM) | Wrapper to cuDNN LSTM implementation
 
