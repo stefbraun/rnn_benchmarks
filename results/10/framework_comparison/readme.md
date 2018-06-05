@@ -85,5 +85,4 @@ difference has not been measured.
 - PyTorch 0.4.0 merged the Tensor and Variable classes and does not need the Variable
 wrapper anymore. The Variable wrapper has a negligible performance impact on version
 0.4.0, but is required for older PyTorch releases in the PyTorch version comparison.
-- The CTC benchmark does not include the TensorFlow `cuDNNLSTM` implementation because it does not seem to handle variable sequence lengths (see [issue 6633](https://github.com/TensorFlow/TensorFlow/issues/6633)).
 - The CTC benchmark was not carried out on PyTorch 0.1.12_2 as the compilation process was too complex. The packed sequence implementation has a large impact on performance for v0.2.0_4 (see [issue 4512](https://github.com/PyTorch/PyTorch/pull/4512)).
