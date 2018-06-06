@@ -5,7 +5,7 @@ Welcome to the rnn_benchmarks repository! We offer:
 - Best-practice scripts to learn coding up a network, optimizers, loss functions etc.
 
 ## Update June 4th 2018
- - arxiv paper release pending
+ - Arxiv paper: [LSTM Benchmarks for Deep Learning Frameworks](https://arxiv.org/abs/1806.01818)
  - [LSTM benchmarks between PyTorch 0.4, TensorFlow 1.8, Keras 2.1.6 and latest Lasagne](https://github.com/stefbraun/rnn_benchmarks/tree/master/results/10/framework_comparison)
  <img align="middle" src="https://github.com/stefbraun/rnn_benchmarks/blob/master/results/10/framework_comparison/1x320-LSTM_cross-entropy.png" width="500">
  
