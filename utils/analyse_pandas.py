@@ -15,9 +15,9 @@ df = pd.read_csv(logfile)
 # assert (int(df.groupby(['experiment', 'bench', 'version']).count()['runtime'].unique()) == 500)
 df['runtime'] = df['runtime'] * 1000
 
-df=df.groupby('bench').tail(400)
-df['mean'] = df.groupby('bench').transform('mean')['runtime']
-df['std'] = df.groupby('bench').transform('std')['runtime']
+df=df.groupby(['experiment','bench']).tail(400)
+df['mean'] = df.groupby(['experiment','bench']).transform('mean')['runtime']
+df['std'] = df.groupby(['experiment','bench']).transform('std')['runtime']
 df = df.sort_values(['mean'], ascending=True)
-grp=df.groupby('bench', as_index=False).tail(1).round(1)
+grp=df.groupby(['experiment','bench'], as_index=False).tail(1).round(1)
 print(grp.to_string())
